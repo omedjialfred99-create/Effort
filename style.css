@@ -1,0 +1,127 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Poppins, sans-serif;
+}
+body{
+    min-height: 100vh;
+    background-image: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+/* Navigation Styles */
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background-color: transparent;
+}
+.logo h1{
+    color: #fff;
+    font-size: 24px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.nav-items{
+    padding: 4px 12px;
+    border-radius: 6px;
+    color: #1174ff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 999;
+}
+button.nav-items{
+    color: #fff;
+    border: none;
+    background: #1174ff;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+.nav-items:hover,
+.nav-items.active{
+    background-color: #1174ff;
+    color: #fff;
+}
+.logo h1{
+    color: #fff;
+    font-size: 24px;
+}
+.nav-links ul{
+    list-style: none;
+    display: flex;
+    gap: 24px;
+}
+.nav-links ul li a{
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+/* Hamburger Menu Styles */
+.humburger{
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+}
+.humburger span{
+    width: 28px;
+    height: 3px;
+    background: #1174ff;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+button{
+    text-decoration: none;
+    padding: 8px 16px;
+    background: #1174ff;
+    color: #fff;
+}
+/* Desktop Styles */
+.nav-links{
+    display: flex;
+}
+.nav-links.active{
+    display: block;
+}
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .humburger{
+        display: flex;
+    }
+    .nav-links{
+        position: absolute;
+        top: 72px;
+        left: 100px;
+        width: 100%;
+        background: #fff1f14a;
+        display: none;
+        text-align: center;
+    }
+    .nav-links ul{
+        flex-direction: column;
+        padding: 16px 24px;
+        gap: 16px;
+    }
+    .nav-links.active{
+        display: block;
+    }
+}
+@media (min-width: 769px) {
+    .humburger{
+        display: none !important;
+    }
+    .nav-links{
+        display: flex !important;
+    }
+}
+.humburger.active span:nth-child(1){
+    transform: translateY(9px) rotate(45deg);
+}
+.humburger.active span:nth-child(2){
+    opacity: 0;
+}
+.humburger.active span:nth-child(3){
+    transform: translateY(-9px) rotate(-45deg);
+}

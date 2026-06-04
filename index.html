@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Effort</title>
 </head>
 <body>
@@ -10,14 +11,43 @@
         <div class="logo">
             <h1>Effort</h1>
         </div>
-        div class="nav-links">
+
+        <div class="humburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="nav-links">
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="#Accueil" class="nav-items active">Accueil</a></li>
+                <li><a href="#À-propos" class="nav-items">À propos</a></li>
+                <li><a href="#Services" class="nav-items">Services</a></li>
+                <li><a href="#Contact" class="nav-items">Contact</a></li>
+                <li><button href="prendre-rdv" class="nav-items">Prendre rendez-vous</button></li>
             </ul>
         </div>
     </nav>
+    <form>
+        
+    </form>
+    <script>
+        const navItems = document.querySelectorAll('.nav-items');
+        const hamburger = document.querySelector('.humburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(link => link.classList.remove('active'));
+                item.classList.add('active');
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>
