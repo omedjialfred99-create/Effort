@@ -119,6 +119,60 @@ button{
     border: none;
     border-radius: 5px;
 }
+/*grid section*/
+
+  .carousel{
+            width: 520px;
+            height: 160px;
+            margin: 100px auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .track{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: max-content;
+            animation: scroll 12s linear infinite;
+        }
+
+        .group{
+            display: flex;
+            gap: 10px;
+        }
+
+        .card{
+            flex: 0 0 120px;
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4c6ef5, #74c0fc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+        
+        .card img{
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .carousel::-webkit-scrollbar{
+            display: none;
+        }
+
+        @keyframes scroll{
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .humburger{
