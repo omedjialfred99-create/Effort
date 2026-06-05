@@ -85,6 +85,15 @@ button{
 .nav-links.active{
     display: block;
 }
+/*text organisation*/
+.text-container{
+    padding: 15px;
+    margin: 10px;
+    color: #fff;
+    text-align: center;
+    text-shadow: #333;
+    font-family: arial, sans-serif;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
     .humburger{
