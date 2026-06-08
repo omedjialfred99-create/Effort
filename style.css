@@ -11,6 +11,7 @@ body{
     min-height: 100vh;
     background-image: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
     background-size: cover;
+    background-repeat: no-repeat;
     background-position: center;
     display: block;
     overflow-x: hidden;
