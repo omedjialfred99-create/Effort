@@ -193,11 +193,12 @@ button{
         border-radius: 10px;
         position: absolute;
         top: 72px;
-        left: 100px;
+        left: 0;
         width: 100%;
         background: rgb(243, 71, 71);
         display: none;
         text-align: center;
+        box-sizing: border-box;
     }
     .nav-links ul{
         flex-direction: column;
