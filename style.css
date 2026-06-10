@@ -5,16 +5,12 @@
     font-family: "poppins", sans-serif;
 }
 body{
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    background-image: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
+    background: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
     background-size: cover;
-    background-repeat: no-repeat;
+    background-attachment: fixed;
     background-position: center;
-    display: block;
-    overflow-x: hidden;
+    height: 500px;
+    width: auto;
 }
 /* Navigation Styles */
 nav{
@@ -22,7 +18,10 @@ nav{
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    background-color: transparent;
+    background-color: rgb(62, 62, 209);
+    position: sticky;
+    top: 0;
+    z-index: 999;
 }
 .logo h1{
     color: #fff;
@@ -181,7 +180,7 @@ button{
         }
         /*footer*/
         footer{
-            background-color: #fff;
+            background-color: rgb(62, 62, 209);
             text-align: center;
         }
 /* Responsive Styles */
