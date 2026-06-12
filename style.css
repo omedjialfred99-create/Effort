@@ -190,14 +190,15 @@ button{
 @media (max-width: 600px) {
     body{
          width: 100%;
-    margin: 0;
+    margin: auto;
     padding: 0;
     min-height: 100vh;
     background-image: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
     background-size: cover;
     background-repeat: no-repeat;
+    text-align: center;
     background-position: center;
-    display: block;
+    display: solid;
     overflow-x: hidden;
     }
     .humburger{
