@@ -7,8 +7,11 @@
 body{
     background: linear-gradient(to left, rgba(57, 77, 177, 0.7), rgba(236, 237, 242, 0.7)), url('Hopital.jpeg');
     background-size: cover;
+    display: solid;
     background-attachment: fixed;
     background-position: center;
+    padding: 0;
+    margin: auto;
     height: 500px;
     width: auto;
 }
