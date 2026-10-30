@@ -389,9 +389,6 @@ function openEmergencyModal() {
     }
 }
 
-/* ==========================================================================
-   NOTIFICATIONS TOAST
-   ========================================================================== */
 let toastTimeout;
 function showToast(message) {
     const toast = document.getElementById('toastNotification');
