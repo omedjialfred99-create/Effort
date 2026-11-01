@@ -1,9 +1,4 @@
-﻿/**
- * CENTRE HOSPITALIER EFFORT - JAVASCRIPT
- * Interactions, Prise de rendez-vous, Filtres de spécialités, Accessibilité
- */
-
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initHeaderScroll();
     initServiceFilters();
@@ -12,9 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initDateRestrictions();
 });
 
-/* ==========================================================================
-   NAVIGATION & MENU MOBILE
-   ========================================================================== */
 function initNavigation() {
     const hamburger = document.getElementById('hamburgerBtn');
     const navMenu = document.getElementById('navMenu');
@@ -72,9 +64,6 @@ function initNavigation() {
     });
 }
 
-/* ==========================================================================
-   HEADER EFFET SCROLL
-   ========================================================================== */
 function initHeaderScroll() {
     const header = document.getElementById('header');
     if (!header) return;
@@ -88,9 +77,6 @@ function initHeaderScroll() {
     });
 }
 
-/* ==========================================================================
-   FILTRAGE DES SERVICES MEDICAUX
-   ========================================================================== */
 function initServiceFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     const serviceCards = document.querySelectorAll('.service-card');
@@ -369,9 +355,6 @@ function handleAppointmentSubmit(event) {
     showToast(`✅ Rendez-vous confirmé pour ${prenom} ${nom} !`);
 }
 
-/* ==========================================================================
-   FORMULAIRE DE CONTACT
-   ========================================================================== */
 function handleContactSubmit(event) {
     event.preventDefault();
     const nom = document.getElementById('contactNom').value;
@@ -380,9 +363,7 @@ function handleContactSubmit(event) {
     document.getElementById('contactForm').reset();
 }
 
-/* ==========================================================================
-   URGENCES MODAL / CALL DIRECT
-   ========================================================================== */
+
 function openEmergencyModal() {
     if (confirm("🚨 APPEL D'URGENCE MÉDICALE\n\nSouhaitez-vous composer directement le numéro des Urgences de la Clinique Effort (0819 456 654) ?\n\nEn cas d'urgence vitale immédiate, composez le 15 (SAMU).")) {
         window.location.href = "tel:0819456654";
