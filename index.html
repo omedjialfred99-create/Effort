@@ -7,8 +7,8 @@
     <title>Clinique Effort | Urgences 24/7 - Kinshasa, RDC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="icon" href="cmef-embleme.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="cmef-embleme.svg">
+    <link rel="icon" href="cmef.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="cmef.svg">
     <link rel="manifest" href="site.webmanifest">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pap3x9e+z0p1f5Q5+6e1Z">
@@ -16,7 +16,6 @@
 </head>
 <body>
 
-    <!-- Bandeau supérieur d'urgence & informations -->
     <aside class="top-bar" aria-label="Informations rapides">
         <div class="container top-bar-content">
             <div class="top-bar-left">
@@ -40,16 +39,14 @@
         </div>
     </aside>
 
-    <!-- Navigation principale -->
     <header class="main-header" id="header">
         <div class="container nav-wrapper">
             <div class="logo">
                 <a href="#accueil" class="logo-link">
-                    <img src="cmef-embleme.svg" alt="Logo de la Clinique Effort" class="logo-img" width="36" height="36">
+                    <img src="cmef.svg" alt="Logo de la Clinique Effort" class="logo-img" width="36" height="36">
                 </a>
             </div>
 
-            <!-- Navigation Links -->
             <nav class="nav-menu" id="navMenu" aria-label="Menu principal">
                 <ul class="nav-list">
                     <li><a href="#accueil" class="nav-link active">Accueil</a></li>
@@ -75,7 +72,6 @@
                 </div>
             </nav>
 
-            <!-- Actions Desktop -->
             <div class="nav-actions">
                 <a href="#urgences" class="btn btn-emergency-outline desktop-only">
                     <span class="live-dot"></span>
@@ -87,7 +83,6 @@
                     <span>Prendre RDV</span>
                 </button>
 
-                <!-- Bouton Hamburger -->
                 <button class="hamburger" id="hamburgerBtn" aria-label="Ouvrir le menu" aria-expanded="false">
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -98,7 +93,6 @@
     </header>
 
     <main>
-        <!-- HERO SECTION -->
         <section class="hero" id="accueil">
             <div class="hero-bg-overlay"></div>
             <div class="container hero-container">
@@ -125,7 +119,6 @@
                         </a>
                     </div>
 
-                    <!-- Piliers de réassurance rapides -->
                     <div class="hero-trust-row">
                         <div class="trust-item">
                             <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -151,7 +144,6 @@
                     </div>
                 </div>
 
-                <!-- Galerie visuelle des installations -->
                 <div class="hero-visual-card">
                     <div class="hospital-showcase">
                         <div class="showcase-main-image">
@@ -189,7 +181,6 @@
             </div>
         </section>
 
-        <!-- BANDEAU FLASH URGENCES MEDICALES -->
         <section class="emergency-banner-section" id="urgences">
             <div class="container">
                 <div class="emergency-card">
@@ -235,7 +226,6 @@
             </div>
         </section>
 
-        <!-- CHIFFRES CLES DE L'ETABLISSEMENT -->
         <section class="stats-section">
             <div class="container stats-grid">
                 <div class="stat-card">
@@ -261,7 +251,6 @@
             </div>
         </section>
 
-        <!-- POLES ET SPECIALITES MEDICALES -->
         <section class="services-section" id="services">
             <div class="container">
                 <div class="section-header text-center">
@@ -271,7 +260,6 @@
                         Une prise en charge globale, coordonnée et bienveillante pour chaque étape de votre parcours de santé.
                     </p>
 
-                    <!-- Filtres de spécialités -->
                     <div class="service-filters" role="tablist">
                         <button class="filter-btn active" data-filter="all">Tous les services</button>
                         <button class="filter-btn" data-filter="urgences">Urgences & Soins Critiques</button>
@@ -282,7 +270,6 @@
                 </div>
 
                 <div class="services-grid" id="servicesGrid">
-                    <!-- Service 1 : Urgences -->
                     <article class="service-card" data-category="urgences">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-red">
@@ -303,7 +290,6 @@
                         </div>
                     </article>
 
-                    <!-- Service 2 : Cardiologie -->
                     <article class="service-card" data-category="chirurgie">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-blue">
@@ -324,7 +310,6 @@
                         </div>
                     </article>
 
-                    <!-- Service 3 : Chirurgie ambulatoire -->
                     <article class="service-card" data-category="chirurgie">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-teal">
@@ -345,7 +330,6 @@
                         </div>
                     </article>
 
-                    <!-- Service 4 : Maternité et Pédiatrie -->
                     <article class="service-card" data-category="famille">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-purple">
@@ -366,7 +350,6 @@
                         </div>
                     </article>
 
-                    <!-- Service 5 : Imagerie Médicale -->
                     <article class="service-card" data-category="imagerie">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-indigo">
@@ -387,8 +370,7 @@
                         </div>
                     </article>
 
-                    <!-- Service 6 : Laboratoire -->
-                    <article class="service-card" data-category="imagerie">
+                        <article class="service-card" data-category="laboratoire">
                         <div class="service-card-header">
                             <div class="service-icon-box bg-green">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.2 18.2a2 2 0 0 0 1.66 2.8h12.28a2 2 0 0 0 1.66-2.8L14 9.31V2h-4z"></path></svg>
@@ -411,7 +393,6 @@
             </div>
         </section>
 
-        <!-- A PROPOS & ENGAGEMENT QUALITE -->
         <section class="about-section" id="a-propos">
             <div class="container about-grid">
                 <div class="about-images-col">
@@ -474,7 +455,6 @@
             </div>
         </section>
 
-        <!-- GUIDE ET ESPACE PATIENT -->
         <section class="patient-guide-section" id="guide-patient">
             <div class="container">
                 <div class="section-header text-center">
@@ -817,7 +797,7 @@
                 <div class="modal-grid">
                     <div class="form-group">
                         <label for="rdvNom">Nom de famille *</label>
-                        <input type="text" id="rdvNom" required placeholder="Ex: Dupont">
+                        <input type="text" id="rdvNom" required placeholder="Ex: Alfred">
                     </div>
                     <div class="form-group">
                         <label for="rdvPrenom">Prénom *</label>
@@ -825,11 +805,11 @@
                     </div>
                     <div class="form-group">
                         <label for="rdvEmail">Adresse email *</label>
-                        <input type="email" id="rdvEmail" required placeholder="marie.dupont@email.com">
+                        <input type="email" id="rdvEmail" required placeholder="K.carine@email.com">
                     </div>
                     <div class="form-group">
                         <label for="rdvTel">Numéro de téléphone *</label>
-                        <input type="tel" id="rdvTel" required placeholder="06 12 34 56 78">
+                        <input type="tel" id="rdvTel" required placeholder="+243 12 345 678">
                     </div>
                 </div>
 
