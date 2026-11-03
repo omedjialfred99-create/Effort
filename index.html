@@ -715,7 +715,6 @@
         </div>
     </footer>
 
-    <!-- MODALE INTERACTIVE DE PRISE DE RENDEZ-VOUS -->
     <div class="modal-overlay" id="appointmentModal" aria-hidden="true">
         <div class="modal-card" role="dialog" aria-labelledby="modalTitle">
             <div class="modal-header">
@@ -726,7 +725,6 @@
                 <button class="modal-close-btn" onclick="closeAppointmentModal()" aria-label="Fermer la fenêtre">&times;</button>
             </div>
 
-            <!-- Formulaire de réservation -->
             <form id="rdvForm" onsubmit="handleAppointmentSubmit(event)" class="modal-form">
                 <div class="form-step-indicator">
                     <span class="step-bullet active">1. Service & Médecin</span>
@@ -777,7 +775,6 @@
                     </div>
                 </div>
 
-                <!-- Créneaux horaires rapides -->
                 <div class="slot-selection-section">
                     <label class="slot-label">Créneaux horaires disponibles pour cette date :</label>
                     <div class="slots-container" id="slotsContainer">
@@ -793,7 +790,6 @@
                     <input type="hidden" id="selectedTimeSlot" value="09:15">
                 </div>
 
-                <!-- Informations patient -->
                 <div class="modal-grid">
                     <div class="form-group">
                         <label for="rdvNom">Nom de famille *</label>
@@ -827,7 +823,6 @@
                 </div>
             </form>
 
-            <!-- Écran de confirmation succès (caché par défaut) -->
             <div id="rdvSuccessScreen" class="rdv-success-screen" style="display: none;">
                 <div class="success-icon-wrap">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -838,7 +833,6 @@
                 <p>Un SMS et un email de confirmation vous ont été envoyés avec le récapitulatif de votre consultation.</p>
                 
                 <div class="recap-card" id="recapCard">
-                    <!-- Rempli par JavaScript -->
                 </div>
 
                 <div class="recap-actions">
@@ -849,7 +843,6 @@
         </div>
     </div>
 
-    <!-- BOUTON FLOTTANT D'URGENCE RAPIDE -->
     <aside class="floating-emergency-container" aria-label="Bouton d'urgence rapide">
         <a href="tel:0819456654" class="floating-urg-btn" title="Appeler les urgences">
             <span class="floating-pulse"></span>
@@ -863,7 +856,6 @@
         </button>
     </aside>
 
-    <!-- TOAST NOTIFICATIONS CONTAINER -->
     <div id="toastNotification" class="toast-notification" aria-live="polite"></div>
 
     <script src="script.js"></script>
