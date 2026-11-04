@@ -1,0 +1,21 @@
+{
+  "name": "Clinique Effort - Kinshasa",
+  "short_name": "Clinique Effort",
+  "description": "Clinique de référence à Kinshasa, RDC. Urgences 24h/24.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "cmef-embleme.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "cmef-embleme.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

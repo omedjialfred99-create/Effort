@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="cmef.svg">
     <link rel="manifest" href="site.webmanifest">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pap3x9e+z0p1f5Q5+6e1Z">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,7 +33,7 @@
                     <span class="pulse-dot"></span>
                     <strong>Urgences 24/7 :</strong>
                     <a href="tel:0819456654" class="emergency-phone">0819 456 654</a>
-                    <span class="samu-badge">Urgences</span>
+                    <span class="samu-badge">Clinique Effort</span>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
                     <li><a href="#accueil" class="nav-link active">Accueil</a></li>
                     <li><a href="#urgences" class="nav-link nav-emergency-link">Urgences 24/7</a></li>
                     <li><a href="#services" class="nav-link">Pôles & Soins</a></li>
-                    <li><a href="#a-propos" class="nav-link">L'Hôpital</a></li>
+                    <li><a href="#a-propos" class="nav-link">La Clinique</a></li>
                     <li><a href="#guide-patient" class="nav-link">Espace Patient</a></li>
                     <li><a href="#contact" class="nav-link">Accès & Contact</a></li>
                 </ul>
@@ -200,10 +200,10 @@
                             En cas de détresse vitale, malaise cardiaque, AVC ou traumatisme sévère, notre équipe d'urgence composée d'urgentistes, réanimateurs et radiologues intervient sans délai.
                         </p>
                         <div class="emergency-contacts-row">
-                            <a href="tel:15" class="urg-btn urg-samu">
-                                <span class="urg-num">15</span>
+                            <a href="tel:0819456654" class="urg-btn urg-direct">
+                                <span class="urg-num">0819</span>
                                 <div>
-                                    <span class="urg-sub">Urgence vitale immédiate</span>
+                                    <span class="urg-sub">456 654</span>
                                 </div>
                             </a>
                             <a href="tel:0819456654" class="urg-btn urg-direct">
@@ -280,7 +280,7 @@
                         <h3>Service des Urgences & Réanimation</h3>
                         <p>Prise en charge médico-chirurgicale immédiate, déchocage, soins intensifs et lits d'hospitalisation de courte durée (UHCD).</p>
                         <ul class="service-features">
-                            <li>Tri médical assisté par IA</li>
+                            <li>Triage médical prioritaire</li>
                             <li>Radiologie d'urgence dédiée</li>
                             <li>Filière AVC & Cardiologie en alerte H24</li>
                         </ul>
@@ -305,7 +305,7 @@
                             <li>Suivi d'hypertension et d'insuffisance</li>
                         </ul>
                         <div class="service-card-footer">
-                            <span class="lead-doctor">Dr. M. Bernard, Chef de pôle</span>
+                            <span class="lead-doctor">Dr. O. Athanase, Chef de pôle</span>
                             <button class="btn-rdv-card" onclick="openAppointmentModal('Cardiologie')">Prendre RDV</button>
                         </div>
                     </article>
@@ -325,7 +325,7 @@
                             <li>Parcours ambulatoire fluide (J0)</li>
                         </ul>
                         <div class="service-card-footer">
-                            <span class="lead-doctor">Dr. S. Laroche, Chirurgien</span>
+                            <span class="lead-doctor">Dr. J. Kabila, Chirurgien</span>
                             <button class="btn-rdv-card" onclick="openAppointmentModal('Chirurgie Ambulatoire')">Prendre RDV</button>
                         </div>
                     </article>
@@ -335,7 +335,7 @@
                             <div class="service-icon-box bg-purple">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
                             </div>
-                            <span class="tag-status">Niveau 2A</span>
+                            <span class="tag-status">Pédiatrie &amp; Maternité</span>
                         </div>
                         <h3>Maternité, Obstétrique & Pédiatrie</h3>
                         <p>Accompagnement personnalisé pour l'arrivée de votre enfant, salles de naissance nature, néonatalogie et consultations pédiatriques complètes.</p>
@@ -355,7 +355,7 @@
                             <div class="service-icon-box bg-indigo">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                             </div>
-                            <span class="tag-status">Numérisation 3T</span>
+                            <span class="tag-status">Imagerie avancée</span>
                         </div>
                         <h3>Imagerie Médicale (IRM & Scanner)</h3>
                         <p>Plateau d'imagerie diagnostique de pointe garantissant des rendez-vous rapides et des résultats transmis immédiatement à votre praticien.</p>
@@ -365,7 +365,7 @@
                             <li>Radiologie interventionnelle & Mammographie</li>
                         </ul>
                         <div class="service-card-footer">
-                            <span class="lead-doctor">Pr. E. Garnier, Radiologue</span>
+                            <span class="lead-doctor">Dr. A. Lukoki, Radiologue</span>
                             <button class="btn-rdv-card" onclick="openAppointmentModal('Imagerie Médicale (IRM/Scanner)')">Prendre RDV</button>
                         </div>
                     </article>
@@ -385,7 +385,7 @@
                             <li>Dépistages et bilans sanguins complets</li>
                         </ul>
                         <div class="service-card-footer">
-                            <span class="lead-doctor">Dr. P. Morel, Biologiste</span>
+                            <span class="lead-doctor">Dr. F. Nzinga, Biologiste</span>
                             <button class="btn-rdv-card" onclick="openAppointmentModal('Laboratoire de Biologie')">Prendre RDV</button>
                         </div>
                     </article>
@@ -442,7 +442,7 @@
                             </div>
                             <div>
                                 <h4>Données de santé hautement sécurisées</h4>
-                                <p>Hébergement HDS agréé et conformité RGPD intégrale pour votre dossier médical.</p>
+                                <p>Vos données médicales sont strictement confidentielles, sécurisées et soumises au secret médical.</p>
                             </div>
                         </div>
                     </div>
@@ -472,9 +472,9 @@
                         <h3>Préparer votre consultation</h3>
                         <p>Pensez à apporter impérativement avec vous lors de votre arrivée au bureau des admissions :</p>
                         <ul class="guide-list">
-                            <li>Votre Carte Vitale à jour ou attestation de droits</li>
-                            <li>Votre carte de mutuelle ou complémentaire santé</li>
-                            <li>Une pièce d'identité officielle valide (CNI, Passeport)</li>
+                            <li>Votre carte CNSS, Mutuelles ou attestation d'assurance maladie</li>
+                            <li>Votre convention d'assurance ou carte de mutuelle</li>
+                            <li>Une pièce d'identité valide (CIN, Passeport, permis de conduire)</li>
                             <li>Vos ordonnances récentes et derniers examens de santé</li>
                         </ul>
                     </div>
@@ -524,13 +524,13 @@
                             <span class="accordion-arrow">&plus;</span>
                         </button>
                         <div class="accordion-content">
-                            <p>Dès votre arrivée, un Infirmier Organisateur de l'Accueil (IOA) évalue immédiatement le degré d'urgence médicale selon les recommandations nationales de tri. Les urgences vitales sont prises en charge instantanément. Pour les cas moins graves, la prise en charge se fait dans l'ordre de priorité clinique.</p>
+                            <p>Dès votre arrivée, une infirmière ou un infirmier de triage évalue immédiatement le degré d'urgence médicale selon les protocoles de triage médicaux. Les urgences vitales sont prises en charge instantanément. Pour les cas moins graves, la prise en charge se fait dans l'ordre de priorité clinique.</p>
                         </div>
                     </div>
 
                     <div class="accordion-item">
                         <button class="accordion-header" aria-expanded="false">
-                            <span>la Clinique Effort pratique-t-il le tiers payant ?</span>
+                            <span>La Clinique Effort travaille-t-elle avec les assurances ?</span>
                             <span class="accordion-arrow">&plus;</span>
                         </button>
                         <div class="accordion-content">
@@ -564,7 +564,7 @@
                             <span class="accordion-arrow">&plus;</span>
                         </button>
                         <div class="accordion-content">
-                            <p>Oui, un parking sécurisé de 3 places est mis à votre disposition avec accès direct aux ascenseurs des consultations et de l'hôpital. Les 2 premières heures sont offertes pour toute consultation médicale.</p>
+                            <p>Oui, un parking sécurisé de 3 places est mis à votre disposition avec accès direct aux ascenseurs des consultations et de La Clinique. Les 2 premières heures sont offertes pour toute consultation médicale.</p>
                         </div>
                     </div>
                 </div>
@@ -591,9 +591,39 @@
                             </div>
                         </div>
 
-                        <div 
-    Write-Output " MATCH FOUND"
-    de contact / message -->
+                        <div class="access-modes">
+                            <div class="access-item">
+                                <div class="access-icon">🛺</div>
+                                <div>
+                                    <strong>En Taxi-moto (Wewa)</strong>
+                                    <p>Disponibles à proximité immédiate, dépose directement à l'entrée principale.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚌</div>
+                                <div>
+                                    <strong>En Bus (Transco)</strong>
+                                    <p>Arrêt de bus sur l'axe principal à quelques mètres de la Clinique Effort.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚗</div>
+                                <div>
+                                    <strong>En Voiture</strong>
+                                    <p>Parking sur place. Code GPS : J9H4+9Q Kinshasa.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚑</div>
+                                <div>
+                                    <strong>Accès Urgences 24/7</strong>
+                                    <p>Entrée dédiée accessible à toute heure. Appelez le 0819 456 654 avant votre arrivée.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- fin contact-info-card -->
+
+                    <!-- Formulaire de contact / message -->
                     <div class="contact-form-card">
                         <h3>Nous envoyer un message</h3>
                         <p class="form-subtext">Pour toute demande d'information administrative ou médicale non urgente.</p>
@@ -633,7 +663,7 @@
 
                             <div class="form-consent">
                                 <input type="checkbox" id="contactConsent" required>
-                                <label for="contactConsent">J'accepte que mes données soient traitées par l'hôpital dans le cadre strict de ma demande.</label>
+                                <label for="contactConsent">J'accepte que mes données soient traitées par La Clinique dans le cadre strict de ma demande.</label>
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-block">
@@ -670,8 +700,7 @@
             <div class="footer-col">
                 <h4>Numéros d'Urgence</h4>
                 <ul class="footer-links-list">
-                    <li><strong>SAMU :</strong> <a href="tel:15">15</a></li>
-                    <li><strong>Urgences Sourds/Malentendants :</strong> 114 (SMS)</li>
+                    <li><strong>Urgences 24h/24 &amp; 7j/7 :</strong> 0819 456 654</li>
                     <li><strong>Standard Clinique :</strong> <a href="tel:0819456654">0819 456 654</a></li>
                     <li><strong>Urgences Effort 24/7 :</strong> <a href="tel:0819456654" class="footer-urg-highlight">0819 456 654</a></li>
                 </ul>
@@ -858,6 +887,28 @@
 
     <div id="toastNotification" class="toast-notification" aria-live="polite"></div>
 
+    <!-- ═══════════════════════════════════════════════════════
+         BANNIÈRE CONSENTEMENT COOKIES
+    ════════════════════════════════════════════════════════ -->
+    <div id="cookieBanner" class="cookie-banner" role="dialog" aria-label="Consentement aux cookies" aria-modal="true">
+        <div class="cookie-banner-inner">
+            <div class="cookie-icon-wrap">🍪</div>
+            <div class="cookie-text">
+                <h4>Respect de votre vie privée</h4>
+                <p>
+                    Ce site utilise des cookies pour améliorer votre expérience (navigation, formulaires, analytics).
+                    Vos données ne sont jamais revendues. En cliquant sur <strong>« Accepter »</strong>, vous consentez
+                    à leur utilisation conformément à notre politique de confidentialité.
+                </p>
+            </div>
+            <div class="cookie-actions">
+                <button class="btn btn-secondary cookie-refuse" onclick="refuseCookies()">Refuser</button>
+                <button class="btn btn-primary cookie-accept" onclick="acceptCookies()">Accepter</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
+

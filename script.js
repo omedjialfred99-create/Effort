@@ -5,6 +5,7 @@
     initFaqAccordion();
     initBackToTop();
     initDateRestrictions();
+    initCookieBanner();
 });
 
 function initNavigation() {
@@ -20,20 +21,17 @@ function initNavigation() {
         hamburger.setAttribute('aria-expanded', isOpen);
     });
 
-    // Fermer le menu lors du clic sur un lien
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
             navMenu.classList.remove('active');
             hamburger.classList.remove('active');
             hamburger.setAttribute('aria-expanded', 'false');
 
-            // Mise à jour de la classe active
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
         });
     });
 
-    // Fermer si clic en dehors
     document.addEventListener('click', (e) => {
         if (!navMenu.contains(e.target) && !hamburger.contains(e.target) && navMenu.classList.contains('active')) {
             navMenu.classList.remove('active');
@@ -42,7 +40,6 @@ function initNavigation() {
         }
     });
 
-    // Mise en surbrillance automatique au défilement (ScrollSpy)
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section[id], header[id]');
         const scrollPos = window.scrollY + 120;
@@ -104,9 +101,6 @@ function initServiceFilters() {
     });
 }
 
-/* ==========================================================================
-   ACCORDEON FAQ
-   ========================================================================== */
 function initFaqAccordion() {
     const accordionHeaders = document.querySelectorAll('.accordion-header');
 
@@ -116,7 +110,6 @@ function initFaqAccordion() {
             const content = header.nextElementSibling;
             const isExpanded = header.getAttribute('aria-expanded') === 'true';
 
-            // Fermer les autres éléments
             document.querySelectorAll('.accordion-item').forEach(otherItem => {
                 if (otherItem !== item) {
                     otherItem.classList.remove('active');
@@ -127,7 +120,6 @@ function initFaqAccordion() {
                 }
             });
 
-            // Basculer l'élément courant
             if (isExpanded) {
                 item.classList.remove('active');
                 header.setAttribute('aria-expanded', 'false');
@@ -141,9 +133,6 @@ function initFaqAccordion() {
     });
 }
 
-/* ==========================================================================
-   DATE PAR DEFAUT POUR LES RENDEZ-VOUS
-   ========================================================================== */
 function initDateRestrictions() {
     const rdvDate = document.getElementById('rdvDate');
     if (rdvDate) {
@@ -158,9 +147,6 @@ function initDateRestrictions() {
     }
 }
 
-/* ==========================================================================
-   BOUTON RETOUR EN HAUT
-   ========================================================================== */
 function initBackToTop() {
     const backBtn = document.getElementById('backToTopBtn');
     if (!backBtn) return;
@@ -188,9 +174,6 @@ function scrollToSection(sectionId) {
     }
 }
 
-/* ==========================================================================
-   MODAL DE RENDEZ-VOUS
-   ========================================================================== */
 function openAppointmentModal(servicePreselect = '') {
     const modal = document.getElementById('appointmentModal');
     const select = document.getElementById('rdvSpecialite');
@@ -199,11 +182,9 @@ function openAppointmentModal(servicePreselect = '') {
 
     if (!modal) return;
 
-    // Reset des affichages
     if (form) form.style.display = 'block';
     if (successScreen) successScreen.style.display = 'none';
 
-    // Présélection de la spécialité si passée en paramètre
     if (servicePreselect && select) {
         for (let i = 0; i < select.options.length; i++) {
             if (select.options[i].value.toLowerCase().includes(servicePreselect.toLowerCase())) {
@@ -228,7 +209,6 @@ function closeAppointmentModal() {
     document.body.style.overflow = '';
 }
 
-// Fermeture de la modale en cliquant sur le fond flouté
 document.addEventListener('click', (e) => {
     const modal = document.getElementById('appointmentModal');
     if (e.target === modal) {
@@ -371,16 +351,50 @@ function openEmergencyModal() {
 }
 
 let toastTimeout;
-function showToast(message) {
+function showToast(message, type = 'success') {
     const toast = document.getElementById('toastNotification');
     if (!toast) return;
 
     clearTimeout(toastTimeout);
     toast.textContent = message;
-    toast.classList.add('show');
+    toast.className = 'toast-notification show toast-' + type;
 
     toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
     }, 4500);
 }
 
+
+/* cookies */
+
+function initCookieBanner() {
+    const banner = document.getElementById('cookieBanner');
+    if (!banner) return;
+
+    const consent = localStorage.getItem('cmef_cookie_consent');
+    if (!consent) {
+        setTimeout(() => {
+            banner.classList.add('visible');
+        }, 1200);
+    }
+}
+
+function acceptCookies() {
+    localStorage.setItem('cmef_cookie_consent', 'accepted');
+    hideCookieBanner();
+    showToast('Préférences enregistrées. Merci !', 'success');
+}
+
+function refuseCookies() {
+    localStorage.setItem('cmef_cookie_consent', 'refused');
+    hideCookieBanner();
+    showToast('Cookies non essentiels refusés.', 'info');
+}
+
+function hideCookieBanner() {
+    const banner = document.getElementById('cookieBanner');
+    if (banner) {
+        banner.classList.remove('visible');
+        setTimeout(() => banner.remove(), 600);
+    }
+}

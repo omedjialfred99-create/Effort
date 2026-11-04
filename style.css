@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --primary: #0284c7;
     --primary-hover: #0369a1;
     --primary-light: #e0f2fe;
@@ -1843,7 +1843,7 @@ button {
     border-radius: var(--radius-md);
     font-size: 0.925rem;
     box-shadow: var(--shadow-xl);
-    z-index: 3000;
+    z-index: 10000;
     transform: translateY(100px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
@@ -1854,6 +1854,11 @@ button {
     transform: translateY(0);
     opacity: 1;
 }
+
+/* Variantes toast */
+.toast-notification.toast-success { border-left-color: var(--success); }
+.toast-notification.toast-info    { border-left-color: #6366f1; }
+.toast-notification.toast-error   { border-left-color: var(--emergency); }
 
 /* Tablettes & Petits écrans (max 1024px) */
 @media (max-width: 1024px) {
@@ -2084,3 +2089,90 @@ button {
         border-radius: 50%;
     }
 }
+
+
+/* ============================================================
+   BANNIÈRE CONSENTEMENT COOKIES
+   ============================================================ */
+.cookie-banner {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 0 1rem 1rem;
+    transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cookie-banner.visible {
+    bottom: 0;
+}
+
+.cookie-banner-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.cookie-icon-wrap {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.cookie-text {
+    flex: 1;
+    min-width: 220px;
+}
+
+.cookie-text h4 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+
+.cookie-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.cookie-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.cookie-refuse {
+    font-size: 0.875rem;
+    padding: 0.6rem 1.25rem;
+}
+
+.cookie-accept {
+    font-size: 0.875rem;
+    padding: 0.6rem 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .cookie-banner-inner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+    .cookie-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
