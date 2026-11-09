@@ -6,7 +6,104 @@
     initBackToTop();
     initDateRestrictions();
     initCookieBanner();
+    initLanguageSwitcher();
 });
+
+const translations = {
+    'Accueil': 'Home',
+    'Urgences 24/7': 'Emergency 24/7',
+    'Pôles & Soins': 'Departments & Care',
+    'La Clinique': 'The Clinic',
+    'Espace Patient': 'Patient Area',
+    'Accès & Contact': 'Access & Contact',
+    'Urgence Immédiate': 'Immediate Emergency',
+    'Prendre rendez-vous': 'Book an appointment',
+    'Prendre RDV': 'Book appointment',
+    'Prendre rendez-vous en ligne': 'Book an appointment online',
+    'Service des Urgences (24/7)': 'Emergency Department (24/7)',
+    'Votre santé, notre engagement': 'Your health, our commitment',
+    'humain et d\'excellence': 'with humanity and excellence',
+    'Tous les services': 'All services',
+    'Questions Fréquentes': 'Frequently Asked Questions',
+    'Nous Rejoindre': 'Getting Here',
+    'Prendre un rendez-vous médical': 'Book a medical appointment',
+    'Découvrir nos accès': 'Discover how to get here',
+    'Ouvert 24h/24 & 7j/7': 'Open 24/7',
+    'Établissement conventionné & certifié HAS Qualité des Soins': 'Certified healthcare facility with a commitment to quality',
+    'Pôles Médicaux & Soins Spécialisés': 'Medical Departments & Specialized Care',
+    'Notre Établissement': 'Our Facility',
+    'Guide Patient & Séjour Hospitalier': 'Patient Guide & Hospital Stay',
+    'Localisation & Contact Pratique': 'Location & Practical Contact',
+    'Préparer votre consultation': 'Prepare for your appointment',
+    'Horaires des Visites': 'Visiting Hours',
+    'Chambres & Confort du Séjour': 'Rooms & Stay Comfort',
+    'Clinique Effort': 'Effort Clinic',
+    'Urgences 24/7 :': 'Emergency 24/7:',
+    'Prise en charge sans délai': 'Immediate care',
+    'Accès facile': 'Easy access',
+    'Parking & Transports': 'Parking & Transport',
+    'Délai optimisé': 'Optimized waiting time',
+    'Parcours patient fluide': 'Smooth patient journey',
+    'Soins continus': 'Continuous care',
+    'Équipe pluridisciplinaire': 'Multidisciplinary team',
+    'Service des Urgences & Réanimation': 'Emergency & Intensive Care Department',
+    'Chirurgie Générale & Ambulatoire': 'General & Ambulatory Surgery',
+    'Maternité, Obstétrique & Pédiatrie': 'Maternity, Obstetrics & Pediatrics',
+    'Imagerie Médicale (IRM & Scanner)': 'Medical Imaging (MRI & CT Scan)',
+    'Laboratoire de Biologie Médicale': 'Medical Biology Laboratory',
+    'Sans rendez-vous dès 07h00 du matin': 'Walk-ins available from 7:00 AM',
+    'Résultats urgents disponibles en 1h': 'Urgent results available within 1 hour',
+    'Merci': 'Thank you',
+    'Lieu': 'Location',
+    'Contact': 'Contact',
+    'Patient': 'Patient',
+    'Spécialité': 'Specialty',
+    'Praticien': 'Practitioner',
+    'Date & Heure': 'Date & Time',
+    'Modalité': 'Appointment type'
+};
+const originalTextNodes = new WeakMap();
+
+function initLanguageSwitcher() {
+    const select = document.getElementById('languageSelect');
+    if (!select) return;
+
+    const savedLanguage = localStorage.getItem('cmef_language') || 'fr';
+    select.value = savedLanguage;
+    applyLanguage(savedLanguage);
+    select.addEventListener('change', () => {
+        localStorage.setItem('cmef_language', select.value);
+        applyLanguage(select.value);
+    });
+}
+
+function applyLanguage(language) {
+    document.documentElement.lang = language;
+    document.title = language === 'en'
+        ? 'Effort Clinic | Emergency 24/7 - Kinshasa, DRC'
+        : 'Clinique Effort | Urgences 24/7 - Kinshasa, RDC';
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+        if (node.parentElement.closest('script, style')) continue;
+        const original = originalTextNodes.get(node) || node.textContent;
+        originalTextNodes.set(node, original);
+        const trimmed = original.trim();
+        if (!trimmed) continue;
+        const translated = language === 'en' ? (translations[trimmed] || trimmed) : trimmed;
+        node.textContent = original.replace(trimmed, translated);
+    }
+
+    document.querySelectorAll('[placeholder]').forEach(element => {
+        if (!element.dataset.frPlaceholder) element.dataset.frPlaceholder = element.placeholder;
+        if (language === 'en') {
+            element.placeholder = translations[element.dataset.frPlaceholder] || element.dataset.frPlaceholder;
+        } else {
+            element.placeholder = element.dataset.frPlaceholder;
+        }
+    });
+}
 
 function initNavigation() {
     const hamburger = document.getElementById('hamburgerBtn');

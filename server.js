@@ -1,12 +1,15 @@
 const express = require('express');
+const path = require('path');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
+app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
-  res.send('Backend est cool brotha!');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
@@ -24,7 +27,7 @@ app.get('/rendez-vous', (req, res) => {
       id: 1,
       date: '2023-07-01',
       time: '10:00 AM',
-    }
+    },
     {
       id:2,
       date: '2023-07-01',

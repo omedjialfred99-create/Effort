@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace professionnel - Clinique Effort</title>
+    <link rel="stylesheet" href="structure.css">
+</head>
+<body>
+    <main class="admin-page">
+        <section id="login-panel" class="panel login-panel">
+            <div class="brand-mark">CE</div>
+            <p class="eyebrow">CLINIQUE EFFORT</p>
+            <h1>Votre espace professionnel</h1>
+            <p class="muted">Connectez-vous pour accéder aux outils adaptés à votre fonction.</p>
+            <form id="login-form">
+                <label for="email">Adresse email</label>
+                <input id="email" type="email" autocomplete="username" required>
+                <label for="password">Mot de passe</label>
+                <input id="password" type="password" autocomplete="current-password" required>
+                <button type="submit">Se connecter</button>
+            </form>
+            <p id="login-message" class="message" role="alert"></p>
+        </section>
+
+        <section id="dashboard-panel" class="hidden">
+            <header class="app-header">
+                <div>
+                    <p class="eyebrow">CLINIQUE EFFORT</p>
+                    <h1 id="dashboard-title">Tableau de bord</h1>
+                    <p id="user-name" class="muted"></p>
+                </div>
+                <div class="header-actions">
+                    <span id="role-badge" class="badge"></span>
+                    <button id="logout" type="button" class="secondary">Se déconnecter</button>
+                </div>
+            </header>
+            <p id="dashboard-message" class="message" role="alert"></p>
+
+            <section id="admin-view" class="role-view hidden">
+                <div id="admin-stats" class="stats-grid"></div>
+                <div class="section-heading"><div><p class="eyebrow">ADMINISTRATION</p><h2>Organisation de la clinique</h2></div></div>
+                <div class="management-grid">
+                    <section class="management-card">
+                        <h3>Ajouter une spécialité</h3>
+                        <form id="specialty-form">
+                            <label for="specialty-name">Nom</label>
+                            <input id="specialty-name" required>
+                            <button type="submit">Créer la spécialité</button>
+                        </form>
+                    </section>
+                    <section class="management-card">
+                        <h3>Ajouter un médecin</h3>
+                        <form id="doctor-form">
+                            <label for="doctor-first-name">Prénom</label>
+                            <input id="doctor-first-name" required>
+                            <label for="doctor-last-name">Nom</label>
+                            <input id="doctor-last-name" required>
+                            <label for="doctor-specialty">Spécialité</label>
+                            <select id="doctor-specialty" required></select>
+                            <label for="doctor-phone">Téléphone</label>
+                            <input id="doctor-phone" type="tel">
+                            <button type="submit">Créer le médecin</button>
+                        </form>
+                    </section>
+                    <section class="management-card">
+                        <h3>Ajouter une disponibilité</h3>
+                        <form id="availability-form">
+                            <label for="availability-doctor">Médecin</label>
+                            <select id="availability-doctor" required></select>
+                            <label for="availability-day">Jour</label>
+                            <select id="availability-day" required>
+                                <option value="1">Lundi</option><option value="2">Mardi</option>
+                                <option value="3">Mercredi</option><option value="4">Jeudi</option>
+                                <option value="5">Vendredi</option><option value="6">Samedi</option>
+                                <option value="0">Dimanche</option>
+                            </select>
+                            <div class="form-row">
+                                <div><label for="availability-start">De</label><input id="availability-start" type="time" value="08:00" required></div>
+                                <div><label for="availability-end">À</label><input id="availability-end" type="time" value="16:00" required></div>
+                            </div>
+                            <button type="submit">Enregistrer</button>
+                        </form>
+                    </section>
+                </div>
+                <div class="two-columns">
+                    <section class="management-card"><h3>Comptes du personnel</h3><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>État</th><th>Action</th></tr></thead><tbody id="staff-accounts"></tbody></table></div></section>
+                    <section class="management-card"><h3>Médecins sans accès</h3><div id="doctors-without-account"></div></section>
+                </div>
+            </section>
+
+            <section id="secretary-view" class="role-view hidden">
+                <div class="toolbar"><div><p class="eyebrow">SECRÉTARIAT</p><h2>Rendez-vous</h2></div><button id="refresh-secretary" class="secondary">Actualiser</button></div>
+                <div class="table-wrap"><table><thead><tr><th>Patient</th><th>Médecin</th><th>Date</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="secretary-appointments"></tbody></table></div>
+            </section>
+
+            <section id="doctor-view" class="role-view hidden">
+                <div class="toolbar"><div><p class="eyebrow">ESPACE MÉDECIN</p><h2>Mon planning</h2></div><div class="toolbar-actions"><input id="planning-date" type="date"><button id="refresh-planning" class="secondary">Actualiser</button></div></div>
+                <div id="doctor-planning" class="appointment-list"></div>
+            </section>
+
+            <section id="profile-view" class="profile-grid">
+                <section class="management-card">
+                    <p class="eyebrow">MON COMPTE</p>
+                    <h2>Profil</h2>
+                    <p class="muted">Modifiez vos informations personnelles et votre adresse email.</p>
+                    <form id="profile-form">
+                        <div class="form-row">
+                            <div><label for="profile-first-name">Prénom</label><input id="profile-first-name" required></div>
+                            <div><label for="profile-last-name">Nom</label><input id="profile-last-name" required></div>
+                        </div>
+                        <label for="profile-email">Adresse email</label>
+                        <input id="profile-email" type="email" required autocomplete="email">
+                        <button type="submit">Enregistrer le profil</button>
+                    </form>
+                </section>
+                <section class="management-card">
+                    <p class="eyebrow">SÉCURITÉ</p>
+                    <h2>Mot de passe</h2>
+                    <p class="muted">Saisissez votre mot de passe actuel pour en choisir un nouveau.</p>
+                    <form id="password-form">
+                        <label for="current-password">Mot de passe actuel</label>
+                        <input id="current-password" type="password" required autocomplete="current-password">
+                        <label for="new-password">Nouveau mot de passe</label>
+                        <input id="new-password" type="password" minlength="8" required autocomplete="new-password">
+                        <label for="confirm-password">Confirmation</label>
+                        <input id="confirm-password" type="password" minlength="8" required autocomplete="new-password">
+                        <button type="submit">Modifier le mot de passe</button>
+                    </form>
+                </section>
+            </section>
+        </section>
+    </main>
+    <script>
+        const tokenKey = 'clinique-effort-token';
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+        const formatDate = (value) => new Date(value).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+        const roleLabels = { admin: 'Administrateur', secretaire: 'Secrétariat', medecin: 'Médecin' };
+
+        async function api(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem(tokenKey), ...(options.headers || {}) }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || data.message || 'La requête a échoué.');
+            return data;
+        }
+
+        function setMessage(message, isError = true) {
+            $('dashboard-message').textContent = message || '';
+            $('dashboard-message').className = `message${isError ? '' : ' success'}`;
+        }
+
+        function showView(role) {
+            $('login-panel').classList.add('hidden');
+            $('dashboard-panel').classList.remove('hidden');
+            $('role-badge').textContent = roleLabels[role] || role;
+            $('dashboard-title').textContent = role === 'admin' ? 'Pilotage de la clinique' : role === 'medecin' ? 'Mon activité' : 'Accueil secrétariat';
+            $(`${role === 'admin' ? 'admin' : role === 'medecin' ? 'doctor' : 'secretary'}-view`).classList.remove('hidden');
+        }
+
+        async function loadAdmin() {
+            const [stats, specialties, doctors, accounts, orphanDoctors] = await Promise.all([
+                api('/api/admin/stats'), api('/api/specialites'), api('/api/medecins'),
+                api('/api/admin/comptes'), api('/api/admin/medecins-sans-compte')
+            ]);
+            $('admin-stats').innerHTML = [['RDV aujourd’hui', stats.rdv_jour], ['En attente', stats.en_attente], ['Annulés aujourd’hui', stats.annules_jour], ['Médecins actifs', stats.medecins_actifs]]
+                .map(([label, value]) => `<article class="stat-card"><strong>${escapeHtml(value)}</strong><span>${label}</span></article>`).join('');
+            $('doctor-specialty').innerHTML = specialties.map((item) => `<option value="${item.id}">${escapeHtml(item.nom)}</option>`).join('');
+            $('availability-doctor').innerHTML = doctors.map((item) => `<option value="${item.id}">${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}</option>`).join('');
+            $('staff-accounts').innerHTML = accounts.map((item) => `<tr><td>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}<small>${escapeHtml(item.email)}</small></td><td>${roleLabels[item.role] || item.role}</td><td><span class="status ${item.actif ? 'confirmed' : 'cancelled'}">${item.actif ? 'Actif' : 'Désactivé'}</span></td><td>${item.role !== 'admin' ? `<button class="table-action" data-toggle-account="${item.id}">${item.actif ? 'Désactiver' : 'Activer'}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="4">Aucun compte.</td></tr>';
+            $('doctors-without-account').innerHTML = orphanDoctors.length ? orphanDoctors.map((item) => `<form class="orphan-doctor" data-invite="${item.id}"><strong>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}</strong><input type="email" placeholder="Email du médecin" required><button>Envoyer l’invitation</button></form>`).join('') : '<p class="muted">Tous les médecins ont un accès.</p>';
+        }
+
+        async function loadSecretary() {
+            const rows = await api('/api/secretariat/rendez-vous');
+            $('secretary-appointments').innerHTML = rows.map((item) => `<tr><td><strong>${escapeHtml(item.patient_prenom)} ${escapeHtml(item.patient_nom)}</strong><small>${escapeHtml(item.telephone)}</small></td><td>Dr ${escapeHtml(item.medecin_prenom)} ${escapeHtml(item.medecin_nom)}</td><td>${formatDate(item.date_heure)}</td><td>${escapeHtml(item.motif || 'Consultation')}</td><td><span class="status ${item.statut}">${escapeHtml(item.statut)}</span>${item.present ? '<small>Présent</small>' : ''}</td><td class="actions">${item.statut === 'en_attente' ? `<button class="table-action" data-confirm="${item.id}">Confirmer</button>` : ''}${!item.present && item.statut !== 'annule' ? `<button class="table-action" data-present="${item.id}">Présent</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="6">Aucun rendez-vous.</td></tr>';
+        }
+
+        async function loadDoctor() {
+            const date = $('planning-date').value;
+            const rows = await api(`/api/medecin/planning?date=${encodeURIComponent(date)}`);
+            $('doctor-planning').innerHTML = rows.map((item) => `<article class="appointment-card"><div><span class="appointment-time">${new Date(item.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span><h3>${escapeHtml(item.patient_prenom)} ${escapeHtml(item.patient_nom)}</h3><p>${escapeHtml(item.telephone)} · ${escapeHtml(item.motif || 'Consultation')}</p></div><div class="appointment-actions"><span class="status ${item.statut}">${escapeHtml(item.statut)}</span>${item.statut !== 'termine' && item.statut !== 'annule' ? `<button class="table-action" data-finish="${item.id}">Terminer</button>` : ''}</div></article>`).join('') || '<p class="empty-state">Aucun rendez-vous pour cette date.</p>';
+        }
+
+        async function loadDashboard() {
+            const token = localStorage.getItem(tokenKey);
+            if (!token) return;
+            try {
+                const profile = await api('/api/auth/me');
+                $('user-name').textContent = `${profile.prenom} ${profile.nom}`;
+                $('profile-first-name').value = profile.prenom;
+                $('profile-last-name').value = profile.nom;
+                $('profile-email').value = profile.email;
+                showView(profile.role);
+                if (profile.role === 'admin') await loadAdmin();
+                if (profile.role === 'secretaire') await loadSecretary();
+                if (profile.role === 'medecin') { $('planning-date').value = new Date().toISOString().slice(0, 10); await loadDoctor(); }
+            } catch (error) { localStorage.removeItem(tokenKey); $('dashboard-panel').classList.add('hidden'); $('login-panel').classList.remove('hidden'); $('login-message').textContent = error.message; }
+        }
+        $('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            $('login-message').textContent = '';
+            try {
+                const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: $('email').value, password: $('password').value }) });
+                localStorage.setItem(tokenKey, data.token);
+                await loadDashboard();
+            } catch (error) { $('login-message').textContent = error.message; }
+        });
+        $('logout').addEventListener('click', () => { localStorage.removeItem(tokenKey); location.reload(); });
+        $('profile-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            try {
+                await api('/api/auth/me', { method: 'PATCH', body: JSON.stringify({ prenom: $('profile-first-name').value, nom: $('profile-last-name').value, email: $('profile-email').value }) });
+                $('user-name').textContent = `${$('profile-first-name').value} ${$('profile-last-name').value}`;
+                setMessage('Profil mis � jour.', false);
+            } catch (error) { setMessage(error.message); }
+        });
+        $('password-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if ($('new-password').value !== $('confirm-password').value) { setMessage('Les deux nouveaux mots de passe ne correspondent pas.'); return; }
+            try {
+                await api('/api/auth/password', { method: 'PATCH', body: JSON.stringify({ currentPassword: $('current-password').value, newPassword: $('new-password').value }) });
+                event.target.reset();
+                setMessage('Mot de passe modifi�. Reconnectez-vous.', false);
+            } catch (error) { setMessage(error.message); }
+        });
+        $('refresh-secretary').addEventListener('click', () => loadSecretary().catch((error) => setMessage(error.message)));
+        $('refresh-planning').addEventListener('click', () => loadDoctor().catch((error) => setMessage(error.message)));
+        $('planning-date').addEventListener('change', () => loadDoctor().catch((error) => setMessage(error.message)));
+        $('specialty-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/api/secretariat/specialites', { method: 'POST', body: JSON.stringify({ nom: $('specialty-name').value }) }); event.target.reset(); await loadAdmin(); setMessage('Spécialité créée.', false); } catch (error) { setMessage(error.message); } });
+        $('doctor-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/api/secretariat/medecins', { method: 'POST', body: JSON.stringify({ prenom: $('doctor-first-name').value, nom: $('doctor-last-name').value, specialite_id: $('doctor-specialty').value, telephone: $('doctor-phone').value }) }); event.target.reset(); await loadAdmin(); setMessage('Médecin créé. Son accès peut être invité depuis la liste des médecins.', false); } catch (error) { setMessage(error.message); } });
+        $('availability-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api(`/api/secretariat/medecins/${$('availability-doctor').value}/disponibilites`, { method: 'POST', body: JSON.stringify({ jour_semaine: $('availability-day').value, heure_debut: $('availability-start').value, heure_fin: $('availability-end').value }) }); setMessage('Disponibilité enregistrée.', false); } catch (error) { setMessage(error.message); } });
+        document.addEventListener('click', async (event) => {
+            const button = event.target.closest('[data-confirm],[data-present],[data-toggle-account],[data-finish]');
+            if (!button) return;
+            try {
+                if (button.dataset.confirm) await api(`/api/secretariat/rendez-vous/${button.dataset.confirm}/confirmer`, { method: 'PATCH' });
+                if (button.dataset.present) await api(`/api/secretariat/rendez-vous/${button.dataset.present}/present`, { method: 'PATCH' });
+                if (button.dataset.toggleAccount) await api(`/api/admin/comptes/${button.dataset.toggleAccount}/toggle`, { method: 'PATCH' });
+                if (button.dataset.finish) { const note = window.prompt('Note de consultation (facultatif) :', ''); await api(`/api/medecin/rendez-vous/${button.dataset.finish}/terminer`, { method: 'PATCH', body: JSON.stringify({ note_medecin: note || null }) }); }
+                await (button.dataset.finish ? loadDoctor() : button.dataset.toggleAccount ? loadAdmin() : loadSecretary());
+            } catch (error) { setMessage(error.message); }
+        });
+        $('doctors-without-account').addEventListener('submit', async (event) => { if (!event.target.matches('[data-invite]')) return; event.preventDefault(); try { const data = await api(`/api/admin/medecins/${event.target.dataset.invite}/invitation`, { method: 'POST', body: JSON.stringify({ email: event.target.querySelector('input').value }) }); window.prompt('Copiez ce lien d’invitation :', data.lien_invitation); await loadAdmin(); } catch (error) { setMessage(error.message); } });
+        loadDashboard();
+    </script>
+</body>
+</html>
+
