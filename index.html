@@ -34,7 +34,7 @@
                     <span class="pulse-dot"></span>
                     <strong>Urgences 24/7 :</strong>
                     <a href="tel:0819456654" class="emergency-phone">0819 456 654</a>
-                    <span class="samu-badge">Clinique Effort</span>
+                    <span class="samu-badge"><a href="tel:0819456654">Clinique Effort</a></span>
                 </div>
             </div>
         </div>
@@ -138,7 +138,7 @@
                         <div class="trust-item">
                             <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                             <div>
-                                <strong>+120 Praticiens</strong>
+                                <strong>+20 Praticiens</strong>
                                 <span>Médecins & chirurgiens</span>
                             </div>
                         </div>
@@ -242,7 +242,7 @@
                     <p class="stat-sub">En consultations et hospitalisations</p>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">120+</span>
+                    <span class="stat-number">20+</span>
                     <span class="stat-label">Médecins & Spécialistes</span>
                     <p class="stat-sub">Équipes soignantes hautement qualifiées</p>
                 </div>
@@ -788,19 +788,14 @@
 
                     <div class="form-group">
                         <label for="rdvDocteur">Praticien référent</label>
-                        <select id="rdvDocteur">
-                            <option value="Premier praticien disponible">Premier praticien disponible</option>
-                            <option value="Dr. M. Bernard (Cardiologue)">Dr. O. Athanase (Généraliste, Urgentiste)</option>
-                            <option value="Dr. S. Laroche (Chirurgien)">Dr. S. Laroche (Chirurgien)</option>
-                            <option value="Dr. C. Dumont (Pédiatre)">Dr. C. Dumont (Pédiatre)</option>
-                            <option value="Pr. E. Garnier (Radiologue)">Pr. E. Garnier (Radiologue)</option>
-                            <option value="Dr. P. Morel (Biologiste)">Dr. P. Morel (Biologiste)</option>
+                        <select id="rdvDocteur" required>
+                            <option value="">Les médecins seront chargés depuis la base de données...</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="rdvDate">Date souhaitée *</label>
-                        <input type="date" id="rdvDate" required min="2026-10-08">
+                        <input type="date" id="rdvDate" required>
                     </div>
 
                     <div class="form-group">
@@ -814,17 +809,10 @@
 
                 <div class="slot-selection-section">
                     <label class="slot-label">Créneaux horaires disponibles pour cette date :</label>
-                    <div class="slots-container" id="slotsContainer">
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">08:30</button>
-                        <button type="button" class="slot-btn selected" onclick="selectSlot(this)">09:15</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">10:00</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">11:30</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">14:00</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">15:45</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">16:30</button>
-                        <button type="button" class="slot-btn" onclick="selectSlot(this)">17:15</button>
+                    <div class="slots-container" id="slotsContainer" aria-live="polite">
+                        <p class="slots-message">Choisissez un médecin et une date pour afficher ses créneaux.</p>
                     </div>
-                    <input type="hidden" id="selectedTimeSlot" value="09:15">
+                    <input type="hidden" id="selectedTimeSlot" value="">
                 </div>
 
                 <div class="modal-grid">
@@ -866,8 +854,8 @@
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </div>
-                <h3>Rendez-vous confirmé avec succès !</h3>
-                <p>Un SMS et un email de confirmation vous ont été envoyés avec le récapitulatif de votre consultation.</p>
+                <h3>Demande de rendez-vous enregistrée</h3>
+                <p>Votre rendez-vous est enregistré dans ce récapitulatif. Conservez votre numéro de dossier.</p>
                 
                 <div class="recap-card" id="recapCard">
                 </div>

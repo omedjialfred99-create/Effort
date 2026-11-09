@@ -7,6 +7,8 @@
     initDateRestrictions();
     initCookieBanner();
     initLanguageSwitcher();
+    initAppointmentDoctors();
+    initAppointmentSlotEvents();
 });
 
 const translations = {
@@ -295,6 +297,7 @@ function openAppointmentModal(servicePreselect = '') {
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden'; // Bloquer le défilement arrière
+    loadAppointmentDoctors();
 }
 
 function closeAppointmentModal() {
@@ -320,57 +323,113 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Mise à jour de la liste des praticiens selon la spécialité
-function updateDoctorsList() {
-    const specialite = document.getElementById('rdvSpecialite').value;
+let appointmentDoctors = [];
+
+function initAppointmentDoctors() {
     const docteurSelect = document.getElementById('rdvDocteur');
     if (!docteurSelect) return;
 
-    const doctorMap = {
-        'Cardiologie': [
-            'Premier praticien disponible',
-            'Dr. M. Bernard (Cardiologue interventionnel)',
-            'Dr. H. Vasseur (Rythmologie & Épreuves d\'effort)'
-        ],
-        'Chirurgie Ambulatoire': [
-            'Premier praticien disponible',
-            'Dr. S. Laroche (Chirurgie digestive & viscérale)',
-            'Dr. L. Fabre (Chirurgie orthopédique)'
-        ],
-        'Maternité & Pédiatrie': [
-            'Premier praticien disponible',
-            'Dr. C. Dumont (Pédiatrie générale & néonatalogie)',
-            'Mme E. Laurent (Sage-femme cadre - Consultations prénatales)'
-        ],
-        'Imagerie Médicale (IRM/Scanner)': [
-            'Premier praticien disponible',
-            'Pr. E. Garnier (Neuroradiologie & IRM 3T)',
-            'Dr. B. Richard (Radiologie interventionnelle)'
-        ],
-        'Laboratoire de Biologie': [
-            'Sans RDV ou biologiste disponible',
-            'Dr. P. Morel (Biologiste médical)'
-        ],
-        'Urgences & Réanimation': [
-            'Accueil sans RDV aux Urgences 24/7 (Présentez-vous directement)'
-        ]
-    };
+    docteurSelect.required = true;
+    docteurSelect.innerHTML = '<option value="">Chargement des médecins...</option>';
+}
 
-    const doctors = doctorMap[specialite] || [
-        'Premier praticien disponible',
-        'Dr. M. Bernard (Cardiologue)',
-        'Dr. S. Laroche (Chirurgien)',
-        'Dr. C. Dumont (Pédiatre)',
-        'Pr. E. Garnier (Radiologue)'
-    ];
+async function loadAppointmentDoctors() {
+    const docteurSelect = document.getElementById('rdvDocteur');
+    if (!docteurSelect) return;
+
+    docteurSelect.disabled = true;
+    docteurSelect.innerHTML = '<option value="">Chargement des médecins...</option>';
+    try {
+        const response = await fetch('/api/medecins');
+        if (!response.ok) throw new Error('Impossible de charger la liste des médecins.');
+        appointmentDoctors = await response.json();
+        updateDoctorsList();
+    } catch (error) {
+        docteurSelect.innerHTML = '<option value="">Liste des médecins indisponible</option>';
+        showToast(error.message, 'error');
+    } finally {
+        docteurSelect.disabled = false;
+    }
+}
+
+function updateDoctorsList() {
+    const docteurSelect = document.getElementById('rdvDocteur');
+    if (!docteurSelect) return;
 
     docteurSelect.innerHTML = '';
-    doctors.forEach(doc => {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = appointmentDoctors.length
+        ? 'Choisissez un médecin...'
+        : 'Aucun médecin disponible';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    docteurSelect.appendChild(placeholder);
+
+    appointmentDoctors.forEach(doctor => {
         const option = document.createElement('option');
-        option.value = doc;
-        option.textContent = doc;
+        option.value = doctor.id;
+        option.textContent = `Dr ${doctor.prenom} ${doctor.nom} — ${doctor.specialite}`;
         docteurSelect.appendChild(option);
     });
+    docteurSelect.disabled = appointmentDoctors.length === 0;
+    resetAppointmentSlots('Choisissez un médecin et une date pour afficher ses créneaux.');
+}
+
+function initAppointmentSlotEvents() {
+    const doctorSelect = document.getElementById('rdvDocteur');
+    const dateInput = document.getElementById('rdvDate');
+    if (doctorSelect) {
+        doctorSelect.addEventListener('change', loadAppointmentSlots);
+    }
+    if (dateInput) {
+        dateInput.addEventListener('change', loadAppointmentSlots);
+    }
+}
+
+function resetAppointmentSlots(message) {
+    const slotsContainer = document.getElementById('slotsContainer');
+    const selectedTimeSlot = document.getElementById('selectedTimeSlot');
+    if (slotsContainer) {
+        slotsContainer.innerHTML = `<p class="slots-message">${message}</p>`;
+    }
+    if (selectedTimeSlot) selectedTimeSlot.value = '';
+}
+
+async function loadAppointmentSlots() {
+    const doctorId = document.getElementById('rdvDocteur')?.value;
+    const date = document.getElementById('rdvDate')?.value;
+    const slotsContainer = document.getElementById('slotsContainer');
+    const selectedTimeSlot = document.getElementById('selectedTimeSlot');
+    if (!doctorId || !date || !slotsContainer) {
+        resetAppointmentSlots('Choisissez un médecin et une date pour afficher ses créneaux.');
+        return;
+    }
+
+    if (selectedTimeSlot) selectedTimeSlot.value = '';
+    slotsContainer.innerHTML = '<p class="slots-message">Chargement des disponibilités...</p>';
+    try {
+        const response = await fetch(`/api/medecins/${encodeURIComponent(doctorId)}/creneaux?date=${encodeURIComponent(date)}`);
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Impossible de charger les disponibilités.');
+        if (!result.length) {
+            resetAppointmentSlots('Aucun créneau disponible pour ce médecin à cette date.');
+            return;
+        }
+
+        slotsContainer.replaceChildren(...result.map((slot) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'slot-btn';
+            button.textContent = slot.slice(11, 16);
+            button.dataset.slot = slot;
+            button.addEventListener('click', () => selectSlot(button));
+            return button;
+        }));
+    } catch (error) {
+        resetAppointmentSlots(error.message);
+        showToast(error.message, 'error');
+    }
 }
 
 // Choix du créneau horaire
@@ -381,42 +440,67 @@ function selectSlot(button) {
 
     const input = document.getElementById('selectedTimeSlot');
     if (input) {
-        input.value = button.textContent.trim();
+        input.value = button.dataset.slot || '';
     }
 }
 
 // Soumission du formulaire de rendez-vous
-function handleAppointmentSubmit(event) {
+async function handleAppointmentSubmit(event) {
     event.preventDefault();
 
-    const specialite = document.getElementById('rdvSpecialite').value;
-    const docteur = document.getElementById('rdvDocteur').value;
+    const doctorSelect = document.getElementById('rdvDocteur');
+    const doctorId = doctorSelect.value;
+    const docteur = doctorSelect.options[doctorSelect.selectedIndex]?.textContent || '';
     const date = document.getElementById('rdvDate').value;
     const type = document.getElementById('rdvType').value === 'presentiel' ? 'Présentiel à l\'Hôpital' : 'Téléconsultation vidéo';
-    const heure = document.getElementById('selectedTimeSlot').value || '09:15';
+    const dateTime = document.getElementById('selectedTimeSlot').value;
     const nom = document.getElementById('rdvNom').value;
     const prenom = document.getElementById('rdvPrenom').value;
     const email = document.getElementById('rdvEmail').value;
     const tel = document.getElementById('rdvTel').value;
     const motif = document.getElementById('rdvMotif').value || 'Consultation standard';
 
-    // Génération d'un numéro de dossier fictif
-    const codeDossier = 'EFF-' + Math.floor(100000 + Math.random() * 900000);
+    if (!doctorId || !dateTime) {
+        showToast('Choisissez un médecin et un créneau disponible.', 'error');
+        return;
+    }
 
-    // Formater la date en français
-    let dateFormatee = date;
+    const submitButton = document.querySelector('#rdvForm button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+    let booking;
     try {
-        const d = new Date(date);
-        dateFormatee = d.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    } catch (e) {}
+        const response = await fetch('/api/rendez-vous', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nom,
+                prenom,
+                telephone: tel,
+                email,
+                medecin_id: doctorId,
+                date_heure: dateTime.replace('T', ' '),
+                motif
+            })
+        });
+        booking = await response.json();
+        if (!response.ok) throw new Error(booking.error || 'Impossible d’enregistrer le rendez-vous.');
+    } catch (error) {
+        showToast(error.message, 'error');
+        if (submitButton) submitButton.disabled = false;
+        await loadAppointmentSlots();
+        return;
+    }
 
-    // Remplissage du récapitulatif
+    const dateFormatee = new Date(dateTime).toLocaleDateString('fr-FR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    const heure = dateTime.slice(11, 16);
+
     const recapCard = document.getElementById('recapCard');
     if (recapCard) {
         recapCard.innerHTML = `
-            <div class="recap-item"><span>Numéro de dossier :</span> <strong>${codeDossier}</strong></div>
+            <div class="recap-item"><span>Code du rendez-vous :</span> <strong>${booking.code}</strong></div>
             <div class="recap-item"><span>Patient :</span> <strong>${prenom} ${nom}</strong></div>
-            <div class="recap-item"><span>Spécialité :</span> <strong>${specialite}</strong></div>
             <div class="recap-item"><span>Praticien :</span> <strong>${docteur}</strong></div>
             <div class="recap-item"><span>Date & Heure :</span> <strong>${dateFormatee} à ${heure}</strong></div>
             <div class="recap-item"><span>Modalité :</span> <strong>${type}</strong></div>
@@ -425,11 +509,10 @@ function handleAppointmentSubmit(event) {
         `;
     }
 
-    // Basculer l'affichage
     document.getElementById('rdvForm').style.display = 'none';
     document.getElementById('rdvSuccessScreen').style.display = 'block';
 
-    showToast(`✅ Rendez-vous confirmé pour ${prenom} ${nom} !`);
+    showToast(booking.message || `Rendez-vous enregistré pour ${prenom} ${nom}.`);
 }
 
 function handleContactSubmit(event) {

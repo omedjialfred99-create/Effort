@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { db } from '../config/db.js';
 import { auth, requireRole } from '../middleware/auth.js';
+import { invitationEmail } from '../services/email.js';
 
 const router = Router();
 router.use(auth, requireRole('admin'));
@@ -52,7 +53,21 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
       [result.insertId, tokenHash]
     );
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
-    res.status(201).json({ lien_invitation: `${baseUrl}/reset-password.html?token=${token}` });
+    const invitationUrl = `${baseUrl}/reset-password.html?token=${token}`;
+    let emailSent = false;
+    let emailWarning = null;
+    try {
+      await invitationEmail({
+        recipient: email,
+        doctorName: `${doctors[0].prenom} ${doctors[0].nom}`,
+        invitationUrl
+      });
+      emailSent = true;
+    } catch (emailError) {
+      emailWarning = emailError.message;
+      console.error(emailWarning);
+    }
+    res.status(201).json({ lien_invitation: invitationUrl, email_sent: emailSent, email_warning: emailWarning });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
     next(err);

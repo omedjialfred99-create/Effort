@@ -244,9 +244,8 @@
                 await (button.dataset.finish ? loadDoctor() : button.dataset.toggleAccount ? loadAdmin() : loadSecretary());
             } catch (error) { setMessage(error.message); }
         });
-        $('doctors-without-account').addEventListener('submit', async (event) => { if (!event.target.matches('[data-invite]')) return; event.preventDefault(); try { const data = await api(`/api/admin/medecins/${event.target.dataset.invite}/invitation`, { method: 'POST', body: JSON.stringify({ email: event.target.querySelector('input').value }) }); window.prompt('Copiez ce lien d’invitation :', data.lien_invitation); await loadAdmin(); } catch (error) { setMessage(error.message); } });
+        $('doctors-without-account').addEventListener('submit', async (event) => { if (!event.target.matches('[data-invite]')) return; event.preventDefault(); try { const data = await api(`/api/admin/medecins/${event.target.dataset.invite}/invitation`, { method: 'POST', body: JSON.stringify({ email: event.target.querySelector('input').value }) }); if (data.email_sent) setMessage('Invitation envoyée par email.', false); else window.prompt('Email non envoyé. Copiez ce lien d’invitation :', data.lien_invitation); await loadAdmin(); } catch (error) { setMessage(error.message); } });
         loadDashboard();
     </script>
 </body>
 </html>
-

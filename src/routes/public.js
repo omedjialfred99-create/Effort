@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import crypto from 'crypto';
 import { db } from '../config/db.js';
+import { appointmentConfirmationEmail } from '../services/email.js';
 
 const router = Router();
 
@@ -28,7 +29,11 @@ router.get('/medecins/:id/creneaux', async (req, res, next) => {
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return res.status(400).json({ error: 'Paramètre date requis (YYYY-MM-DD)' });
     }
-    const jour = new Date(`${date}T00:00:00`).getDay();
+    const parsedDate = new Date(`${date}T00:00:00Z`);
+    if (Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== date) {
+      return res.status(400).json({ error: 'Date invalide' });
+    }
+    const jour = parsedDate.getUTCDay();
     const [dispos] = await db.query(
       'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id = ? AND jour_semaine = ?',
       [req.params.id, jour]
@@ -66,6 +71,30 @@ router.post('/rendez-vous', async (req, res, next) => {
     if (!nom || !prenom || !telephone || !medecin_id || !date_heure) {
       return res.status(400).json({ error: 'Champs obligatoires manquants' });
     }
+    const normalizedDateTime = String(date_heure).replace('T', ' ');
+    const dateMatch = normalizedDateTime.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}):00$/);
+    if (!dateMatch) {
+      return res.status(400).json({ error: 'Date et heure invalides' });
+    }
+    const bookingDate = new Date(`${dateMatch[1]}T00:00:00Z`);
+    if (Number.isNaN(bookingDate.getTime()) || bookingDate.toISOString().slice(0, 10) !== dateMatch[1]) {
+      return res.status(400).json({ error: 'Date invalide' });
+    }
+    const [availability] = await conn.query(
+      'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id=? AND jour_semaine=?',
+      [medecin_id, bookingDate.getUTCDay()]
+    );
+    const requestedMinutes = Number(dateMatch[2].slice(0, 2)) * 60 + Number(dateMatch[2].slice(3, 5));
+    const slotIsAvailableBySchedule = availability.some((item) => {
+      const [startHour, startMinute] = item.heure_debut.split(':').map(Number);
+      const [endHour, endMinute] = item.heure_fin.split(':').map(Number);
+      const start = startHour * 60 + startMinute;
+      const end = endHour * 60 + endMinute;
+      return requestedMinutes >= start && requestedMinutes + 30 <= end && (requestedMinutes - start) % 30 === 0;
+    });
+    if (!slotIsAvailableBySchedule) {
+      return res.status(409).json({ error: 'Ce médecin n’est pas disponible sur ce créneau.' });
+    }
     await conn.beginTransaction();
     await conn.query(
       `INSERT INTO patients (nom, prenom, telephone, email) VALUES (?, ?, ?, ?)
@@ -77,10 +106,38 @@ router.post('/rendez-vous', async (req, res, next) => {
     await conn.query(
       `INSERT INTO rendez_vous (code, patient_id, medecin_id, date_heure, motif, origine)
        VALUES (?, ?, ?, ?, ?, 'en_ligne')`,
-      [code, patients[0].id, medecin_id, date_heure, motif || null]
+      [code, patients[0].id, medecin_id, normalizedDateTime, motif || null]
     );
     await conn.commit();
-    res.status(201).json({ code, message: 'Rendez-vous enregistré. Conservez ce code.' });
+    let emailSent = false;
+    let emailWarning = null;
+    if (email) {
+      try {
+        const [doctorRows] = await db.query(
+          'SELECT nom, prenom FROM medecins WHERE id=?',
+          [medecin_id]
+        );
+        await appointmentConfirmationEmail({
+          recipient: email,
+          patientName: `${prenom} ${nom}`,
+          doctorName: doctorRows[0] ? `${doctorRows[0].prenom} ${doctorRows[0].nom}` : 'votre praticien',
+          date: new Date(date_heure).toLocaleString('fr-FR'),
+          code
+        });
+        emailSent = true;
+      } catch (emailError) {
+        emailWarning = emailError.message;
+        console.error(emailWarning);
+      }
+    }
+    res.status(201).json({
+      code,
+      message: emailSent
+        ? 'Rendez-vous enregistré. Un email de confirmation a été envoyé.'
+        : 'Rendez-vous enregistré. Conservez ce code.',
+      email_sent: emailSent,
+      email_warning: emailWarning
+    });
   } catch (err) {
     await conn.rollback();
     if (err.code === 'ER_DUP_ENTRY') {
