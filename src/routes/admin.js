@@ -7,6 +7,26 @@ import { auth, requireRole } from '../middleware/auth.js';
 const router = Router();
 router.use(auth, requireRole('admin'));
 
+function getAppUrl() {
+  const appUrl = process.env.APP_URL?.replace(/\/+$/, '');
+  if (!appUrl) {
+    throw new Error('APP_URL must be configured with the public website URL before generating staff links.');
+  }
+  let url;
+  try {
+    url = new URL(appUrl);
+  } catch {
+    throw new Error('APP_URL must be a valid public HTTP or HTTPS URL.');
+  }
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new Error('APP_URL must use HTTP or HTTPS.');
+  }
+  if (process.env.NODE_ENV === 'production' && ['localhost', '127.0.0.1'].includes(url.hostname)) {
+    throw new Error('APP_URL must use the public website URL in production, not localhost.');
+  }
+  return appUrl;
+}
+
 router.get('/comptes', async (req, res, next) => {
   try {
     const { rows } = await db.query(
@@ -51,7 +71,7 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [personnel[0].id, tokenHash]
     );
-    const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = getAppUrl();
     const invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
     res.status(201).json({
       message: 'Accès médecin créé. Copiez le lien ci-dessous pour le transmettre au médecin.',
@@ -86,7 +106,7 @@ router.post('/comptes', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [users[0].id, tokenHash]
     );
-    const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = getAppUrl();
     res.status(201).json({
       message: 'Compte créé',
       lien_invitation: `${baseUrl}/admin.html?activation=${invitationToken}`
@@ -118,7 +138,7 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
       [req.params.id, tokenHash]
     );
-    const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = getAppUrl();
     res.json({
       message: 'Lien de récupération créé. Il expire dans 1 heure.',
       lien_recuperation: `${baseUrl}/admin.html?activation=${token}`
@@ -140,7 +160,12 @@ router.get('/stats', async (req, res, next) => {
     const { rows: [attente] } = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='en_attente'");
     const { rows: [annules] } = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='annule' AND DATE(date_heure)=$1", [date]);
     const { rows: [medecins] } = await db.query('SELECT COUNT(*) AS n FROM medecins WHERE actif=TRUE');
-    res.json({ rdv_jour: rdvJour.n, en_attente: attente.n, annules_jour: annules.n, medecins_actifs: medecins.n });
+    res.json({
+      rdv_jour: Number(rdvJour.n),
+      en_attente: Number(attente.n),
+      annules_jour: Number(annules.n),
+      medecins_actifs: Number(medecins.n)
+    });
   } catch (err) { next(err); }
 });
 

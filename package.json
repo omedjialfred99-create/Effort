@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "setup-db": "node scripts/setup-db.js",
-    "create-admin": "node scripts/create-admin.js"
+    "create-admin": "node scripts/create-admin.js",
+    "migrate:mysql-to-supabase": "node scripts/migrate-mysql-to-supabase.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,9 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.4",
-    "nodemailer": "^10.4.0"
+    "nodemailer": "^10.4.0",
+    "pg": "^8.23.1",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

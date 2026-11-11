@@ -9,6 +9,5 @@ if (!process.env.DATABASE_URL) {
 
 export const db = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  max: Number(process.env.DB_POOL_SIZE) || 10
+  max: Number(process.env.DB_POOL_SIZE) || (process.env.NETLIFY ? 2 : 10)
 });

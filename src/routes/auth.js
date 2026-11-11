@@ -32,15 +32,18 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.post('/activate', async (req, res, next) => {
-  const connection = await db.connect();
+  let connection;
+  let transactionOpen = false;
   try {
     const { token } = req.body;
     if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
       return res.status(400).json({ error: 'Lien d’activation invalide ou expiré' });
     }
 
+    connection = await db.connect();
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     await connection.query('BEGIN');
+    transactionOpen = true;
     const { rows } = await connection.query(
       `SELECT t.id AS token_id, p.id, p.role, p.medecin_id, p.must_change_password
        FROM password_reset_tokens t
@@ -53,6 +56,7 @@ router.post('/activate', async (req, res, next) => {
     );
     if (!rows.length) {
       await connection.query('ROLLBACK');
+      transactionOpen = false;
       return res.status(400).json({ error: 'Lien d’activation invalide, déjà utilisé ou expiré' });
     }
 
@@ -62,9 +66,11 @@ router.post('/activate', async (req, res, next) => {
     );
     if (!result.rowCount) {
       await connection.query('ROLLBACK');
+      transactionOpen = false;
       return res.status(400).json({ error: 'Ce lien d’activation a déjà été utilisé' });
     }
     await connection.query('COMMIT');
+    transactionOpen = false;
 
     const accessToken = jwt.sign(
       { id: rows[0].id, role: rows[0].role, medecin_id: rows[0].medecin_id, password_setup: true },
@@ -73,10 +79,10 @@ router.post('/activate', async (req, res, next) => {
     );
     res.json({ token: accessToken, message: 'Accès temporaire accordé. Définissez votre mot de passe dans votre profil.' });
   } catch (err) {
-    await connection.query('ROLLBACK');
+    if (transactionOpen) await connection.query('ROLLBACK');
     next(err);
   } finally {
-    connection.release();
+    connection?.release();
   }
 });
 
@@ -166,16 +172,19 @@ router.post('/reset-password', async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const connection = await db.connect();
+    let transactionOpen = false;
     try {
       await connection.query('BEGIN');
+      transactionOpen = true;
       await connection.query(
         'UPDATE personnel SET password_hash=$1, must_change_password=FALSE WHERE id=$2',
         [passwordHash, rows[0].personnel_id]
       );
       await connection.query('UPDATE password_reset_tokens SET used_at=NOW() WHERE id=$1', [rows[0].id]);
       await connection.query('COMMIT');
+      transactionOpen = false;
     } catch (err) {
-      await connection.query('ROLLBACK');
+      if (transactionOpen) await connection.query('ROLLBACK');
       throw err;
     } finally {
       connection.release();

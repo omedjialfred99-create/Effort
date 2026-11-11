@@ -65,7 +65,8 @@ router.get('/medecins/:id/creneaux', async (req, res, next) => {
 });
 
 router.post('/rendez-vous', async (req, res, next) => {
-  const conn = await db.connect();
+  let conn;
+  let transactionOpen = false;
   try {
     const { nom, prenom, telephone, email, medecin_id, date_heure, motif } = req.body;
     if (!nom || !prenom || !telephone || !medecin_id || !date_heure) {
@@ -80,6 +81,7 @@ router.post('/rendez-vous', async (req, res, next) => {
     if (Number.isNaN(bookingDate.getTime()) || bookingDate.toISOString().slice(0, 10) !== dateMatch[1]) {
       return res.status(400).json({ error: 'Date invalide' });
     }
+    conn = await db.connect();
     const { rows: availability } = await conn.query(
       'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id=$1 AND jour_semaine=$2',
       [medecin_id, bookingDate.getUTCDay()]
@@ -96,6 +98,7 @@ router.post('/rendez-vous', async (req, res, next) => {
       return res.status(409).json({ error: 'Ce médecin n’est pas disponible sur ce créneau.' });
     }
     await conn.query('BEGIN');
+    transactionOpen = true;
     const { rows: patients } = await conn.query(
       `INSERT INTO patients (nom, prenom, telephone, email) VALUES ($1, $2, $3, $4)
        ON CONFLICT (telephone) DO UPDATE SET
@@ -111,6 +114,7 @@ router.post('/rendez-vous', async (req, res, next) => {
       [code, patients[0].id, medecin_id, normalizedDateTime, motif || null]
     );
     await conn.query('COMMIT');
+    transactionOpen = false;
     let emailSent = false;
     let emailWarning = null;
     if (email) {
@@ -141,13 +145,13 @@ router.post('/rendez-vous', async (req, res, next) => {
       email_warning: emailWarning
     });
   } catch (err) {
-    await conn.query('ROLLBACK');
+    if (transactionOpen) await conn.query('ROLLBACK');
     if (err.code === '23505') {
       return res.status(409).json({ error: "Ce créneau vient d'être pris, choisissez-en un autre" });
     }
     next(err);
   } finally {
-    conn.release();
+    conn?.release();
   }
 });
 

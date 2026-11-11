@@ -21,7 +21,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.resolve(rootDir, '..')));
+if (!process.env.NETLIFY) {
+  app.use(express.static(path.resolve(rootDir, '..')));
+}
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api', publicRouter);
