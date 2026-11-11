@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS personnel (
   prenom VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
   role ENUM('admin', 'secretaire', 'medecin') NOT NULL,
   medecin_id INT,
   actif BOOLEAN DEFAULT TRUE,

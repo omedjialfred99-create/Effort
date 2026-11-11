@@ -15,7 +15,7 @@ export function auth(req, res, next) {
 
 export function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user || req.user.password_setup || !roles.includes(req.user.role)) {
       return res.status(403).json({ error: 'Accès refusé' });
     }
     next();

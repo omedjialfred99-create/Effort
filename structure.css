@@ -65,6 +65,8 @@ td strong, td small { display: block; }
 .orphan-doctor { display: grid; grid-template-columns: 1fr 1.2fr auto; align-items: end; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .orphan-doctor input { min-width: 0; }
 .orphan-doctor button { margin: 0; white-space: nowrap; }
+.copy-link-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin: 16px 0 10px; }
+.copy-link-row input { min-width: 0; }
 .appointment-list { display: grid; gap: 12px; margin-top: 20px; }
 .appointment-card { display: flex; justify-content: space-between; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
 .appointment-time { color: var(--blue); font-size: 1.35rem; font-weight: 800; }
@@ -73,4 +75,4 @@ td strong, td small { display: block; }
 .appointment-actions { display: flex; align-items: center; gap: 12px; }
 .empty-state { background: #fff; border: 1px dashed var(--line); border-radius: 14px; padding: 30px; color: var(--muted); text-align: center; }
 @media (max-width: 900px) { .management-grid, .stats-grid, .profile-grid { grid-template-columns: repeat(2, 1fr); } .two-columns { grid-template-columns: 1fr; } }
-@media (max-width: 620px) { .admin-page { padding: 18px 12px 40px; } .panel { padding: 20px; } .app-header, .toolbar { flex-direction: column; } .header-actions { width: 100%; justify-content: space-between; } .stats-grid, .management-grid, .profile-grid { grid-template-columns: 1fr; } .orphan-doctor, .form-row { grid-template-columns: 1fr; } .orphan-doctor button { width: 100%; } .appointment-card { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 620px) { .admin-page { padding: 18px 12px 40px; } .panel { padding: 20px; } .app-header, .toolbar { flex-direction: column; } .header-actions { width: 100%; justify-content: space-between; } .stats-grid, .management-grid, .profile-grid { grid-template-columns: 1fr; } .orphan-doctor, .form-row, .copy-link-row { grid-template-columns: 1fr; } .orphan-doctor button, .copy-link-row button { width: 100%; } .appointment-card { align-items: flex-start; flex-direction: column; } }

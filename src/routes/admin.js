@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { db } from '../config/db.js';
 import { auth, requireRole } from '../middleware/auth.js';
-import { invitationEmail } from '../services/email.js';
 
 const router = Router();
 router.use(auth, requireRole('admin'));
@@ -11,7 +10,7 @@ router.use(auth, requireRole('admin'));
 router.get('/comptes', async (req, res, next) => {
   try {
     const [rows] = await db.query(
-      'SELECT id, nom, prenom, email, role, actif, medecin_id FROM personnel ORDER BY role, nom'
+      'SELECT id, nom, prenom, email, role, actif, medecin_id, must_change_password FROM personnel ORDER BY role, nom'
     );
     res.json(rows);
   } catch (err) { next(err); }
@@ -43,8 +42,8 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
     const [result] = await db.query(
-      `INSERT INTO personnel (nom, prenom, email, password_hash, role, medecin_id)
-       VALUES (?, ?, ?, ?, 'medecin', ?)`,
+      `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
+       VALUES (?, ?, ?, ?, TRUE, 'medecin', ?)`,
       [doctors[0].nom, doctors[0].prenom, email, hash, doctors[0].id]
     );
     await db.query(
@@ -53,21 +52,12 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
       [result.insertId, tokenHash]
     );
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
-    const invitationUrl = `${baseUrl}/reset-password.html?token=${token}`;
-    let emailSent = false;
-    let emailWarning = null;
-    try {
-      await invitationEmail({
-        recipient: email,
-        doctorName: `${doctors[0].prenom} ${doctors[0].nom}`,
-        invitationUrl
-      });
-      emailSent = true;
-    } catch (emailError) {
-      emailWarning = emailError.message;
-      console.error(emailWarning);
-    }
-    res.status(201).json({ lien_invitation: invitationUrl, email_sent: emailSent, email_warning: emailWarning });
+    const invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
+    res.status(201).json({
+      message: 'Accès médecin créé. Copiez le lien ci-dessous pour le transmettre au médecin.',
+      lien_invitation: invitationUrl,
+      expires_in_hours: 72
+    });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
     next(err);
@@ -87,8 +77,8 @@ router.post('/comptes', async (req, res, next) => {
     const tokenHash = crypto.createHash('sha256').update(invitationToken).digest('hex');
     const hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
     await db.query(
-      `INSERT INTO personnel (nom, prenom, email, password_hash, role, medecin_id)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
+       VALUES (?, ?, ?, ?, TRUE, ?, ?)`,
       [nom, prenom, email, hash, role, role === 'medecin' ? medecin_id : null]
     );
     const [users] = await db.query('SELECT id FROM personnel WHERE email=?', [email]);
@@ -100,7 +90,7 @@ router.post('/comptes', async (req, res, next) => {
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
     res.status(201).json({
       message: 'Compte créé',
-      lien_invitation: `${baseUrl}/reset-password.html?token=${invitationToken}`
+      lien_invitation: `${baseUrl}/admin.html?activation=${invitationToken}`
     });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
@@ -123,6 +113,7 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
        WHERE personnel_id=? AND used_at IS NULL`,
       [req.params.id]
     );
+    await db.query('UPDATE personnel SET must_change_password=TRUE WHERE id=?', [req.params.id]);
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
        VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
@@ -131,7 +122,7 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
     res.json({
       message: 'Lien de récupération créé. Il expire dans 1 heure.',
-      lien_recuperation: `${baseUrl}/reset-password.html?token=${token}`
+      lien_recuperation: `${baseUrl}/admin.html?activation=${token}`
     });
   } catch (err) { next(err); }
 });

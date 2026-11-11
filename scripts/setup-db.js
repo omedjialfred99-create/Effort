@@ -12,6 +12,15 @@ const connection = await mysql.createConnection({
 
 try {
   await connection.query(schema);
+  const [columns] = await connection.query(
+    "SHOW COLUMNS FROM personnel LIKE 'must_change_password'"
+  );
+  if (!columns.length) {
+    await connection.query(
+      'ALTER TABLE personnel ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT FALSE AFTER password_hash'
+    );
+    console.log('Colonne must_change_password ajoutée.');
+  }
   console.log(`Base de données ${process.env.DB_NAME} initialisée.`);
 } finally {
   await connection.end();

@@ -54,23 +54,6 @@ export async function sendEmail({ to, subject, html, text }) {
   });
 }
 
-export function invitationEmail({ recipient, doctorName, invitationUrl }) {
-  const safeDoctorName = escapeHtml(doctorName);
-  const safeInvitationUrl = escapeHtml(invitationUrl);
-  return sendEmail({
-    to: recipient,
-    subject: 'Votre accès à l’espace médecin - Clinique Effort',
-    text: `Bonjour ${doctorName}, définissez votre mot de passe et activez votre espace médecin avec ce lien : ${invitationUrl}. Ce lien est valable 72 heures.`,
-    html: `
-      <h2>Bienvenue à la Clinique Effort</h2>
-      <p>Bonjour ${safeDoctorName},</p>
-      <p>Votre compte médecin a été créé. Utilisez le lien ci-dessous pour définir votre mot de passe et accéder à votre espace :</p>
-      <p><a href="${safeInvitationUrl}">Activer mon espace médecin</a></p>
-      <p>Ce lien est valable 72 heures.</p>
-    `
-  });
-}
-
 export function appointmentConfirmationEmail({ recipient, patientName, doctorName, date, code }) {
   const safePatientName = escapeHtml(patientName);
   const safeDoctorName = escapeHtml(doctorName);

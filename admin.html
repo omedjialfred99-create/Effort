@@ -64,6 +64,19 @@
                         </form>
                     </section>
                     <section class="management-card">
+                        <h3>Créer un accès secrétaire</h3>
+                        <p class="muted">Le lien d’activation sera généré ici. Aucun email ne sera envoyé.</p>
+                        <form id="secretary-account-form">
+                            <label for="secretary-first-name">Prénom</label>
+                            <input id="secretary-first-name" required>
+                            <label for="secretary-last-name">Nom</label>
+                            <input id="secretary-last-name" required>
+                            <label for="secretary-email">Email de connexion</label>
+                            <input id="secretary-email" type="email" required>
+                            <button type="submit">Créer l’accès et générer le lien</button>
+                        </form>
+                    </section>
+                    <section class="management-card">
                         <h3>Ajouter une disponibilité</h3>
                         <form id="availability-form">
                             <label for="availability-doctor">Médecin</label>
@@ -85,8 +98,17 @@
                 </div>
                 <div class="two-columns">
                     <section class="management-card"><h3>Comptes du personnel</h3><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>État</th><th>Action</th></tr></thead><tbody id="staff-accounts"></tbody></table></div></section>
-                    <section class="management-card"><h3>Médecins sans accès</h3><div id="doctors-without-account"></div></section>
+                    <section class="management-card"><h3>Accès médecins</h3><p class="muted">Créez un accès et générez son lien ici. Aucun email ne sera envoyé.</p><div id="doctors-without-account"></div></section>
                 </div>
+                <section id="activation-link-result" class="management-card hidden" aria-live="polite">
+                    <h3 id="activation-link-title">Lien d’activation</h3>
+                    <p id="activation-link-message" class="muted"></p>
+                    <div class="copy-link-row">
+                        <input id="activation-link-url" type="url" readonly aria-label="Lien d’activation">
+                        <button id="copy-activation-link" type="button">Copier le lien</button>
+                    </div>
+                    <small>Ce lien est utilisable une seule fois et expire après 72 heures.</small>
+                </section>
             </section>
 
             <section id="secretary-view" class="role-view hidden">
@@ -117,10 +139,12 @@
                 <section class="management-card">
                     <p class="eyebrow">SÉCURITÉ</p>
                     <h2>Mot de passe</h2>
-                    <p class="muted">Saisissez votre mot de passe actuel pour en choisir un nouveau.</p>
+                    <p id="password-help" class="muted">Saisissez votre mot de passe actuel pour en choisir un nouveau.</p>
                     <form id="password-form">
-                        <label for="current-password">Mot de passe actuel</label>
-                        <input id="current-password" type="password" required autocomplete="current-password">
+                        <div id="current-password-field">
+                            <label for="current-password">Mot de passe actuel</label>
+                            <input id="current-password" type="password" required autocomplete="current-password">
+                        </div>
                         <label for="new-password">Nouveau mot de passe</label>
                         <input id="new-password" type="password" minlength="8" required autocomplete="new-password">
                         <label for="confirm-password">Confirmation</label>
@@ -153,12 +177,43 @@
             $('dashboard-message').className = `message${isError ? '' : ' success'}`;
         }
 
+        function showActivationLink(title, message, url) {
+            $('activation-link-title').textContent = title;
+            $('activation-link-message').textContent = message;
+            $('activation-link-url').value = url;
+            $('activation-link-result').classList.remove('hidden');
+            $('activation-link-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         function showView(role) {
             $('login-panel').classList.add('hidden');
             $('dashboard-panel').classList.remove('hidden');
             $('role-badge').textContent = roleLabels[role] || role;
             $('dashboard-title').textContent = role === 'admin' ? 'Pilotage de la clinique' : role === 'medecin' ? 'Mon activité' : 'Accueil secrétariat';
             $(`${role === 'admin' ? 'admin' : role === 'medecin' ? 'doctor' : 'secretary'}-view`).classList.remove('hidden');
+        }
+
+        async function activateFromLink() {
+            const activation = new URLSearchParams(location.search).get('activation');
+            if (!activation) return false;
+
+            try {
+                const response = await fetch('/api/auth/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: activation })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.error || 'Impossible d’activer ce lien.');
+                localStorage.setItem(tokenKey, data.token);
+                history.replaceState({}, document.title, location.pathname);
+                await loadDashboard();
+            } catch (error) {
+                localStorage.removeItem(tokenKey);
+                history.replaceState({}, document.title, location.pathname);
+                $('login-message').textContent = error.message;
+            }
+            return true;
         }
 
         async function loadAdmin() {
@@ -170,8 +225,8 @@
                 .map(([label, value]) => `<article class="stat-card"><strong>${escapeHtml(value)}</strong><span>${label}</span></article>`).join('');
             $('doctor-specialty').innerHTML = specialties.map((item) => `<option value="${item.id}">${escapeHtml(item.nom)}</option>`).join('');
             $('availability-doctor').innerHTML = doctors.map((item) => `<option value="${item.id}">${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}</option>`).join('');
-            $('staff-accounts').innerHTML = accounts.map((item) => `<tr><td>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}<small>${escapeHtml(item.email)}</small></td><td>${roleLabels[item.role] || item.role}</td><td><span class="status ${item.actif ? 'confirmed' : 'cancelled'}">${item.actif ? 'Actif' : 'Désactivé'}</span></td><td>${item.role !== 'admin' ? `<button class="table-action" data-toggle-account="${item.id}">${item.actif ? 'Désactiver' : 'Activer'}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="4">Aucun compte.</td></tr>';
-            $('doctors-without-account').innerHTML = orphanDoctors.length ? orphanDoctors.map((item) => `<form class="orphan-doctor" data-invite="${item.id}"><strong>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}</strong><input type="email" placeholder="Email du médecin" required><button>Envoyer l’invitation</button></form>`).join('') : '<p class="muted">Tous les médecins ont un accès.</p>';
+            $('staff-accounts').innerHTML = accounts.map((item) => `<tr><td>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}<small>${escapeHtml(item.email)}</small></td><td>${roleLabels[item.role] || item.role}</td><td><span class="status ${!item.actif ? 'cancelled' : item.must_change_password ? 'en_attente' : 'confirmed'}">${!item.actif ? 'Désactivé' : item.must_change_password ? 'À activer' : 'Actif'}</span></td><td>${item.role !== 'admin' ? `${item.must_change_password ? `<button class="table-action" data-activation-reset="${item.id}" data-account-role="${item.role}">Nouveau lien</button>` : ''}<button class="table-action" data-toggle-account="${item.id}">${item.actif ? 'Désactiver' : 'Activer'}</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="4">Aucun compte.</td></tr>';
+            $('doctors-without-account').innerHTML = orphanDoctors.length ? orphanDoctors.map((item) => `<form class="orphan-doctor" data-invite="${item.id}"><strong>${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}</strong><input type="email" placeholder="Email de connexion" aria-label="Email de connexion de ${escapeHtml(item.prenom)} ${escapeHtml(item.nom)}" required><button>Créer l’accès et générer le lien</button></form>`).join('') : '<p class="muted">Tous les médecins ont un accès.</p>';
         }
 
         async function loadSecretary() {
@@ -187,18 +242,46 @@
 
         async function loadDashboard() {
             const token = localStorage.getItem(tokenKey);
-            if (!token) return;
+            if (!token) return false;
+            let profile;
             try {
-                const profile = await api('/api/auth/me');
-                $('user-name').textContent = `${profile.prenom} ${profile.nom}`;
-                $('profile-first-name').value = profile.prenom;
-                $('profile-last-name').value = profile.nom;
-                $('profile-email').value = profile.email;
-                showView(profile.role);
+                profile = await api('/api/auth/me');
+            } catch (error) {
+                localStorage.removeItem(tokenKey);
+                $('dashboard-panel').classList.add('hidden');
+                $('login-panel').classList.remove('hidden');
+                $('login-message').textContent = error.message;
+                return false;
+            }
+
+            $('user-name').textContent = `${profile.prenom} ${profile.nom}`;
+            $('profile-first-name').value = profile.prenom;
+            $('profile-last-name').value = profile.nom;
+            $('profile-email').value = profile.email;
+            showView(profile.role);
+            const needsPasswordSetup = profile.must_change_password === true || Number(profile.must_change_password) === 1;
+            if (needsPasswordSetup) {
+                document.querySelectorAll('.role-view').forEach((view) => view.classList.add('hidden'));
+                $('profile-view').classList.remove('hidden');
+                $('current-password-field').classList.add('hidden');
+                $('current-password').required = false;
+                $('password-help').textContent = 'Bienvenue. Choisissez votre mot de passe pour terminer l’activation de votre espace.';
+                $('dashboard-message').textContent = 'Votre compte est activé temporairement. Définissez votre mot de passe pour accéder à votre espace.';
+                return true;
+            }
+
+            $('current-password-field').classList.remove('hidden');
+            $('current-password').required = true;
+            $('password-help').textContent = 'Saisissez votre mot de passe actuel pour en choisir un nouveau.';
+            try {
                 if (profile.role === 'admin') await loadAdmin();
                 if (profile.role === 'secretaire') await loadSecretary();
                 if (profile.role === 'medecin') { $('planning-date').value = new Date().toISOString().slice(0, 10); await loadDoctor(); }
-            } catch (error) { localStorage.removeItem(tokenKey); $('dashboard-panel').classList.add('hidden'); $('login-panel').classList.remove('hidden'); $('login-message').textContent = error.message; }
+            } catch (error) {
+                setMessage(`Votre mot de passe est enregistré, mais les données de l’espace n’ont pas pu être chargées : ${error.message}`);
+                return false;
+            }
+            return true;
         }
         $('login-form').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -210,6 +293,15 @@
             } catch (error) { $('login-message').textContent = error.message; }
         });
         $('logout').addEventListener('click', () => { localStorage.removeItem(tokenKey); location.reload(); });
+        $('copy-activation-link').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText($('activation-link-url').value);
+                setMessage('Lien copié. Transmettez-le au membre du personnel.', false);
+            } catch (error) {
+                $('activation-link-url').select();
+                setMessage('La copie automatique est indisponible. Sélectionnez et copiez le lien manuellement.');
+            }
+        });
         $('profile-form').addEventListener('submit', async (event) => {
             event.preventDefault();
             try {
@@ -222,9 +314,17 @@
             event.preventDefault();
             if ($('new-password').value !== $('confirm-password').value) { setMessage('Les deux nouveaux mots de passe ne correspondent pas.'); return; }
             try {
-                await api('/api/auth/password', { method: 'PATCH', body: JSON.stringify({ currentPassword: $('current-password').value, newPassword: $('new-password').value }) });
+                const data = await api('/api/auth/password', { method: 'PATCH', body: JSON.stringify({
+                    currentPassword: $('current-password').value || undefined,
+                    newPassword: $('new-password').value
+                }) });
+                localStorage.setItem(tokenKey, data.token);
                 event.target.reset();
-                setMessage('Mot de passe modifi�. Reconnectez-vous.', false);
+                const dashboardLoaded = await loadDashboard();
+                if (!$('dashboard-panel').classList.contains('hidden')) {
+                    if (dashboardLoaded) setMessage(data.message, false);
+                    $('dashboard-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             } catch (error) { setMessage(error.message); }
         });
         $('refresh-secretary').addEventListener('click', () => loadSecretary().catch((error) => setMessage(error.message)));
@@ -232,20 +332,57 @@
         $('planning-date').addEventListener('change', () => loadDoctor().catch((error) => setMessage(error.message)));
         $('specialty-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/api/secretariat/specialites', { method: 'POST', body: JSON.stringify({ nom: $('specialty-name').value }) }); event.target.reset(); await loadAdmin(); setMessage('Spécialité créée.', false); } catch (error) { setMessage(error.message); } });
         $('doctor-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api('/api/secretariat/medecins', { method: 'POST', body: JSON.stringify({ prenom: $('doctor-first-name').value, nom: $('doctor-last-name').value, specialite_id: $('doctor-specialty').value, telephone: $('doctor-phone').value }) }); event.target.reset(); await loadAdmin(); setMessage('Médecin créé. Son accès peut être invité depuis la liste des médecins.', false); } catch (error) { setMessage(error.message); } });
+        $('secretary-account-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            try {
+                const data = await api('/api/admin/comptes', { method: 'POST', body: JSON.stringify({
+                    prenom: $('secretary-first-name').value,
+                    nom: $('secretary-last-name').value,
+                    email: $('secretary-email').value,
+                    role: 'secretaire'
+                }) });
+                event.target.reset();
+                await loadAdmin();
+                showActivationLink('Lien d’activation secrétaire', 'Compte créé. Copiez ce lien et transmettez-le directement au secrétaire.', data.lien_invitation);
+                setMessage('Compte secrétaire créé. Aucun email n’a été envoyé.', false);
+            } catch (error) { setMessage(error.message); }
+        });
         $('availability-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await api(`/api/secretariat/medecins/${$('availability-doctor').value}/disponibilites`, { method: 'POST', body: JSON.stringify({ jour_semaine: $('availability-day').value, heure_debut: $('availability-start').value, heure_fin: $('availability-end').value }) }); setMessage('Disponibilité enregistrée.', false); } catch (error) { setMessage(error.message); } });
         document.addEventListener('click', async (event) => {
-            const button = event.target.closest('[data-confirm],[data-present],[data-toggle-account],[data-finish]');
+            const button = event.target.closest('[data-confirm],[data-present],[data-toggle-account],[data-finish],[data-activation-reset]');
             if (!button) return;
             try {
                 if (button.dataset.confirm) await api(`/api/secretariat/rendez-vous/${button.dataset.confirm}/confirmer`, { method: 'PATCH' });
                 if (button.dataset.present) await api(`/api/secretariat/rendez-vous/${button.dataset.present}/present`, { method: 'PATCH' });
                 if (button.dataset.toggleAccount) await api(`/api/admin/comptes/${button.dataset.toggleAccount}/toggle`, { method: 'PATCH' });
                 if (button.dataset.finish) { const note = window.prompt('Note de consultation (facultatif) :', ''); await api(`/api/medecin/rendez-vous/${button.dataset.finish}/terminer`, { method: 'PATCH', body: JSON.stringify({ note_medecin: note || null }) }); }
-                await (button.dataset.finish ? loadDoctor() : button.dataset.toggleAccount ? loadAdmin() : loadSecretary());
+                if (button.dataset.activationReset) {
+                    const data = await api(`/api/admin/comptes/${button.dataset.activationReset}/reset-password`, { method: 'POST' });
+                    showActivationLink(
+                        `Nouveau lien d’activation ${button.dataset.accountRole === 'medecin' ? 'médecin' : 'secrétaire'}`,
+                        'Copiez ce nouveau lien et transmettez-le au membre du personnel.',
+                        data.lien_recuperation
+                    );
+                    setMessage('Nouveau lien généré. Aucun email n’a été envoyé.', false);
+                }
+                if (button.dataset.finish) await loadDoctor();
+                else if (button.dataset.toggleAccount || button.dataset.activationReset) await loadAdmin();
+                else await loadSecretary();
             } catch (error) { setMessage(error.message); }
         });
-        $('doctors-without-account').addEventListener('submit', async (event) => { if (!event.target.matches('[data-invite]')) return; event.preventDefault(); try { const data = await api(`/api/admin/medecins/${event.target.dataset.invite}/invitation`, { method: 'POST', body: JSON.stringify({ email: event.target.querySelector('input').value }) }); if (data.email_sent) setMessage('Invitation envoyée par email.', false); else window.prompt('Email non envoyé. Copiez ce lien d’invitation :', data.lien_invitation); await loadAdmin(); } catch (error) { setMessage(error.message); } });
-        loadDashboard();
+        $('doctors-without-account').addEventListener('submit', async (event) => {
+            if (!event.target.matches('[data-invite]')) return;
+            event.preventDefault();
+            try {
+                const data = await api(`/api/admin/medecins/${event.target.dataset.invite}/invitation`, { method: 'POST', body: JSON.stringify({ email: event.target.querySelector('input').value }) });
+                await loadAdmin();
+                showActivationLink('Lien d’activation médecin', 'Compte créé. Copiez ce lien et transmettez-le directement au médecin.', data.lien_invitation);
+                setMessage('Compte médecin créé. Aucun email n’a été envoyé.', false);
+            } catch (error) { setMessage(error.message); }
+        });
+        activateFromLink().then((activated) => {
+            if (!activated) loadDashboard();
+        });
     </script>
 </body>
 </html>
