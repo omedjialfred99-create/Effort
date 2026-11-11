@@ -1,27 +1,23 @@
 import 'dotenv/config';
 import fs from 'fs/promises';
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 
-const schema = await fs.readFile(new URL('../schema.sql', import.meta.url), 'utf8');
-const connection = await mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  multipleStatements: true
+const { Client } = pg;
+const schema = await fs.readFile(new URL('../schema.postgres.sql', import.meta.url), 'utf8');
+const connection = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
 });
 
 try {
-  await connection.query(schema);
-  const [columns] = await connection.query(
-    "SHOW COLUMNS FROM personnel LIKE 'must_change_password'"
-  );
-  if (!columns.length) {
-    await connection.query(
-      'ALTER TABLE personnel ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT FALSE AFTER password_hash'
-    );
-    console.log('Colonne must_change_password ajoutée.');
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL must be configured before initializing the database.');
   }
-  console.log(`Base de données ${process.env.DB_NAME} initialisée.`);
+  await connection.connect();
+  for (const statement of schema.split(';').map((part) => part.trim()).filter(Boolean)) {
+    await connection.query(statement);
+  }
+  console.log('Supabase PostgreSQL schema initialized.');
 } finally {
-  await connection.end();
+  await connection.end().catch(() => {});
 }

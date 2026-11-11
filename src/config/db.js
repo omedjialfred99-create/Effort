@@ -1,12 +1,14 @@
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 import 'dotenv/config';
 
-export const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+const { Pool } = pg;
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL must be configured for the PostgreSQL database.');
+}
+
+export const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+  max: Number(process.env.DB_POOL_SIZE) || 10
 });

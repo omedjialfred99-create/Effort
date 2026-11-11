@@ -8,8 +8,8 @@ const hash = await bcrypt.hash(password, 10);
 
 await db.query(
   `INSERT INTO personnel (nom, prenom, email, password_hash, role)
-   VALUES ('Admin', 'System', ?, ?, 'admin')
-   ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash)`,
+   VALUES ('Admin', 'System', $1, $2, 'admin')
+   ON CONFLICT (email) DO UPDATE SET password_hash=EXCLUDED.password_hash`,
   [email, hash]
 );
 console.log(`Compte admin prêt : ${email}`);

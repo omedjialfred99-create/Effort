@@ -7,14 +7,14 @@ const router = Router();
 
 router.get('/specialites', async (req, res, next) => {
   try {
-    const [rows] = await db.query('SELECT id, nom FROM specialites ORDER BY nom');
+    const { rows } = await db.query('SELECT id, nom FROM specialites ORDER BY nom');
     res.json(rows);
   } catch (err) { next(err); }
 });
 
 router.get('/medecins', async (req, res, next) => {
   try {
-    const [rows] = await db.query(`
+    const { rows } = await db.query(`
       SELECT m.id, m.nom, m.prenom, m.photo_url, m.specialite_id, s.nom AS specialite
       FROM medecins m JOIN specialites s ON s.id = m.specialite_id
       WHERE m.actif = TRUE ORDER BY s.nom, m.nom
@@ -34,13 +34,13 @@ router.get('/medecins/:id/creneaux', async (req, res, next) => {
       return res.status(400).json({ error: 'Date invalide' });
     }
     const jour = parsedDate.getUTCDay();
-    const [dispos] = await db.query(
-      'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id = ? AND jour_semaine = ?',
+    const { rows: dispos } = await db.query(
+      'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id = $1 AND jour_semaine = $2',
       [req.params.id, jour]
     );
-    const [pris] = await db.query(
-      `SELECT DATE_FORMAT(date_heure, '%Y-%m-%dT%H:%i:00') AS dt
-       FROM rendez_vous WHERE medecin_id = ? AND DATE(date_heure) = ?
+    const { rows: pris } = await db.query(
+      `SELECT TO_CHAR(date_heure, 'YYYY-MM-DD"T"HH24:MI:SS') AS dt
+       FROM rendez_vous WHERE medecin_id = $1 AND DATE(date_heure) = $2
        AND statut IN ('en_attente', 'confirme')`,
       [req.params.id, date]
     );
@@ -65,7 +65,7 @@ router.get('/medecins/:id/creneaux', async (req, res, next) => {
 });
 
 router.post('/rendez-vous', async (req, res, next) => {
-  const conn = await db.getConnection();
+  const conn = await db.connect();
   try {
     const { nom, prenom, telephone, email, medecin_id, date_heure, motif } = req.body;
     if (!nom || !prenom || !telephone || !medecin_id || !date_heure) {
@@ -80,8 +80,8 @@ router.post('/rendez-vous', async (req, res, next) => {
     if (Number.isNaN(bookingDate.getTime()) || bookingDate.toISOString().slice(0, 10) !== dateMatch[1]) {
       return res.status(400).json({ error: 'Date invalide' });
     }
-    const [availability] = await conn.query(
-      'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id=? AND jour_semaine=?',
+    const { rows: availability } = await conn.query(
+      'SELECT heure_debut, heure_fin FROM disponibilites WHERE medecin_id=$1 AND jour_semaine=$2',
       [medecin_id, bookingDate.getUTCDay()]
     );
     const requestedMinutes = Number(dateMatch[2].slice(0, 2)) * 60 + Number(dateMatch[2].slice(3, 5));
@@ -95,26 +95,28 @@ router.post('/rendez-vous', async (req, res, next) => {
     if (!slotIsAvailableBySchedule) {
       return res.status(409).json({ error: 'Ce médecin n’est pas disponible sur ce créneau.' });
     }
-    await conn.beginTransaction();
-    await conn.query(
-      `INSERT INTO patients (nom, prenom, telephone, email) VALUES (?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE nom=VALUES(nom), prenom=VALUES(prenom), email=COALESCE(VALUES(email), email)`,
+    await conn.query('BEGIN');
+    const { rows: patients } = await conn.query(
+      `INSERT INTO patients (nom, prenom, telephone, email) VALUES ($1, $2, $3, $4)
+       ON CONFLICT (telephone) DO UPDATE SET
+         nom=EXCLUDED.nom, prenom=EXCLUDED.prenom,
+         email=COALESCE(EXCLUDED.email, patients.email)
+       RETURNING id`,
       [nom, prenom, telephone, email || null]
     );
-    const [patients] = await conn.query('SELECT id FROM patients WHERE telephone = ?', [telephone]);
     const code = crypto.randomBytes(3).toString('hex').toUpperCase();
     await conn.query(
       `INSERT INTO rendez_vous (code, patient_id, medecin_id, date_heure, motif, origine)
-       VALUES (?, ?, ?, ?, ?, 'en_ligne')`,
+       VALUES ($1, $2, $3, $4, $5, 'en_ligne')`,
       [code, patients[0].id, medecin_id, normalizedDateTime, motif || null]
     );
-    await conn.commit();
+    await conn.query('COMMIT');
     let emailSent = false;
     let emailWarning = null;
     if (email) {
       try {
-        const [doctorRows] = await db.query(
-          'SELECT nom, prenom FROM medecins WHERE id=?',
+        const { rows: doctorRows } = await db.query(
+          'SELECT nom, prenom FROM medecins WHERE id=$1',
           [medecin_id]
         );
         await appointmentConfirmationEmail({
@@ -139,8 +141,8 @@ router.post('/rendez-vous', async (req, res, next) => {
       email_warning: emailWarning
     });
   } catch (err) {
-    await conn.rollback();
-    if (err.code === 'ER_DUP_ENTRY') {
+    await conn.query('ROLLBACK');
+    if (err.code === '23505') {
       return res.status(409).json({ error: "Ce créneau vient d'être pris, choisissez-en un autre" });
     }
     next(err);
@@ -152,12 +154,12 @@ router.post('/rendez-vous', async (req, res, next) => {
 router.post('/rendez-vous/consulter', async (req, res, next) => {
   try {
     const { code, telephone } = req.body;
-    const [rows] = await db.query(`
+    const { rows } = await db.query(`
       SELECT r.code, r.date_heure, r.statut, r.motif,
         m.nom AS medecin_nom, m.prenom AS medecin_prenom, s.nom AS specialite
       FROM rendez_vous r JOIN patients p ON p.id=r.patient_id
       JOIN medecins m ON m.id=r.medecin_id JOIN specialites s ON s.id=m.specialite_id
-      WHERE r.code=? AND p.telephone=?`, [code, telephone]);
+      WHERE r.code=$1 AND p.telephone=$2`, [code, telephone]);
     if (!rows.length) return res.status(404).json({ error: 'Rendez-vous introuvable' });
     res.json(rows[0]);
   } catch (err) { next(err); }
@@ -165,12 +167,13 @@ router.post('/rendez-vous/consulter', async (req, res, next) => {
 
 router.patch('/rendez-vous/:code/annuler', async (req, res, next) => {
   try {
-    const [result] = await db.query(
-      `UPDATE rendez_vous r JOIN patients p ON p.id=r.patient_id
-       SET r.statut='annule' WHERE r.code=? AND p.telephone=? AND r.statut IN ('en_attente','confirme')`,
+    const result = await db.query(
+      `UPDATE rendez_vous r SET statut='annule'
+       WHERE r.code=$1 AND r.statut IN ('en_attente','confirme')
+         AND EXISTS (SELECT 1 FROM patients p WHERE p.id=r.patient_id AND p.telephone=$2)`,
       [req.params.code, req.body.telephone]
     );
-    if (!result.affectedRows) return res.status(404).json({ error: 'Rendez-vous introuvable' });
+    if (!result.rowCount) return res.status(404).json({ error: 'Rendez-vous introuvable' });
     res.json({ message: 'Rendez-vous annulé' });
   } catch (err) { next(err); }
 });

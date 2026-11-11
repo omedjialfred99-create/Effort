@@ -12,8 +12,8 @@ router.post('/login', async (req, res, next) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
-    const [rows] = await db.query(
-      'SELECT * FROM personnel WHERE email = ? AND actif = TRUE',
+    const { rows } = await db.query(
+      'SELECT * FROM personnel WHERE email = $1 AND actif = TRUE',
       [email]
     );
     const user = rows[0];
@@ -32,7 +32,7 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.post('/activate', async (req, res, next) => {
-  const connection = await db.getConnection();
+  const connection = await db.connect();
   try {
     const { token } = req.body;
     if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
@@ -40,31 +40,31 @@ router.post('/activate', async (req, res, next) => {
     }
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    await connection.beginTransaction();
-    const [rows] = await connection.query(
+    await connection.query('BEGIN');
+    const { rows } = await connection.query(
       `SELECT t.id AS token_id, p.id, p.role, p.medecin_id, p.must_change_password
        FROM password_reset_tokens t
        JOIN personnel p ON p.id=t.personnel_id
-       WHERE t.token_hash=? AND t.used_at IS NULL AND t.expires_at > NOW()
+       WHERE t.token_hash=$1 AND t.used_at IS NULL AND t.expires_at > NOW()
          AND p.actif=TRUE AND p.must_change_password=TRUE
          AND p.role IN ('medecin', 'secretaire')
        FOR UPDATE`,
       [tokenHash]
     );
     if (!rows.length) {
-      await connection.rollback();
+      await connection.query('ROLLBACK');
       return res.status(400).json({ error: 'Lien d’activation invalide, déjà utilisé ou expiré' });
     }
 
-    const [result] = await connection.query(
-      'UPDATE password_reset_tokens SET used_at=NOW() WHERE id=? AND used_at IS NULL',
+    const result = await connection.query(
+      'UPDATE password_reset_tokens SET used_at=NOW() WHERE id=$1 AND used_at IS NULL',
       [rows[0].token_id]
     );
-    if (!result.affectedRows) {
-      await connection.rollback();
+    if (!result.rowCount) {
+      await connection.query('ROLLBACK');
       return res.status(400).json({ error: 'Ce lien d’activation a déjà été utilisé' });
     }
-    await connection.commit();
+    await connection.query('COMMIT');
 
     const accessToken = jwt.sign(
       { id: rows[0].id, role: rows[0].role, medecin_id: rows[0].medecin_id, password_setup: true },
@@ -73,7 +73,7 @@ router.post('/activate', async (req, res, next) => {
     );
     res.json({ token: accessToken, message: 'Accès temporaire accordé. Définissez votre mot de passe dans votre profil.' });
   } catch (err) {
-    await connection.rollback();
+    await connection.query('ROLLBACK');
     next(err);
   } finally {
     connection.release();
@@ -82,8 +82,8 @@ router.post('/activate', async (req, res, next) => {
 
 router.get('/me', auth, async (req, res, next) => {
   try {
-    const [rows] = await db.query(
-      'SELECT id, nom, prenom, email, role, medecin_id, must_change_password FROM personnel WHERE id=? AND actif=TRUE',
+    const { rows } = await db.query(
+      'SELECT id, nom, prenom, email, role, medecin_id, must_change_password FROM personnel WHERE id=$1 AND actif=TRUE',
       [req.user.id]
     );
     if (!rows.length) return res.status(401).json({ error: 'Compte introuvable ou désactivé' });
@@ -100,12 +100,12 @@ router.patch('/me', auth, async (req, res, next) => {
       return res.status(400).json({ error: 'Nom, prénom et email sont requis' });
     }
     await db.query(
-      'UPDATE personnel SET nom=?, prenom=?, email=? WHERE id=? AND actif=TRUE',
+      'UPDATE personnel SET nom=$1, prenom=$2, email=$3 WHERE id=$4 AND actif=TRUE',
       [nom.trim(), prenom.trim(), email.trim().toLowerCase(), req.user.id]
     );
     res.json({ message: 'Profil mis à jour' });
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+    if (err.code === '23505') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
     next(err);
   }
 });
@@ -116,8 +116,8 @@ router.patch('/password', auth, async (req, res, next) => {
     if (!newPassword || newPassword.length < 8) {
       return res.status(400).json({ error: 'Nouveau mot de passe de 8 caractères minimum requis' });
     }
-    const [rows] = await db.query(
-      'SELECT password_hash, must_change_password FROM personnel WHERE id=? AND actif=TRUE',
+    const { rows } = await db.query(
+      'SELECT password_hash, must_change_password FROM personnel WHERE id=$1 AND actif=TRUE',
       [req.user.id]
     );
     if (!rows.length) {
@@ -136,7 +136,7 @@ router.patch('/password', auth, async (req, res, next) => {
     }
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await db.query(
-      'UPDATE personnel SET password_hash=?, must_change_password=FALSE WHERE id=?',
+      'UPDATE personnel SET password_hash=$1, must_change_password=FALSE WHERE id=$2',
       [passwordHash, req.user.id]
     );
     const token = jwt.sign(
@@ -157,25 +157,25 @@ router.post('/reset-password', async (req, res, next) => {
       return res.status(400).json({ error: 'Lien et mot de passe de 8 caractères minimum requis' });
     }
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const [rows] = await db.query(
+    const { rows } = await db.query(
       `SELECT id, personnel_id FROM password_reset_tokens
-       WHERE token_hash=? AND used_at IS NULL AND expires_at > NOW()`,
+       WHERE token_hash=$1 AND used_at IS NULL AND expires_at > NOW()`,
       [tokenHash]
     );
     if (!rows.length) return res.status(400).json({ error: 'Lien invalide ou expiré' });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const connection = await db.getConnection();
+    const connection = await db.connect();
     try {
-      await connection.beginTransaction();
+      await connection.query('BEGIN');
       await connection.query(
-        'UPDATE personnel SET password_hash=?, must_change_password=FALSE WHERE id=?',
+        'UPDATE personnel SET password_hash=$1, must_change_password=FALSE WHERE id=$2',
         [passwordHash, rows[0].personnel_id]
       );
-      await connection.query('UPDATE password_reset_tokens SET used_at=NOW() WHERE id=?', [rows[0].id]);
-      await connection.commit();
+      await connection.query('UPDATE password_reset_tokens SET used_at=NOW() WHERE id=$1', [rows[0].id]);
+      await connection.query('COMMIT');
     } catch (err) {
-      await connection.rollback();
+      await connection.query('ROLLBACK');
       throw err;
     } finally {
       connection.release();

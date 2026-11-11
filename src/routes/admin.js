@@ -9,7 +9,7 @@ router.use(auth, requireRole('admin'));
 
 router.get('/comptes', async (req, res, next) => {
   try {
-    const [rows] = await db.query(
+    const { rows } = await db.query(
       'SELECT id, nom, prenom, email, role, actif, medecin_id, must_change_password FROM personnel ORDER BY role, nom'
     );
     res.json(rows);
@@ -18,7 +18,7 @@ router.get('/comptes', async (req, res, next) => {
 
 router.get('/medecins-sans-compte', async (req, res, next) => {
   try {
-    const [rows] = await db.query(`
+    const { rows } = await db.query(`
       SELECT m.id, m.nom, m.prenom
       FROM medecins m
       LEFT JOIN personnel p ON p.medecin_id = m.id
@@ -33,23 +33,23 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email de connexion requis' });
-    const [doctors] = await db.query(
-      'SELECT id, nom, prenom FROM medecins WHERE id=? AND actif=TRUE',
+    const { rows: doctors } = await db.query(
+      'SELECT id, nom, prenom FROM medecins WHERE id=$1 AND actif=TRUE',
       [req.params.id]
     );
     if (!doctors.length) return res.status(404).json({ error: 'Médecin introuvable' });
     const token = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
-    const [result] = await db.query(
+    const { rows: personnel } = await db.query(
       `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
-       VALUES (?, ?, ?, ?, TRUE, 'medecin', ?)`,
+       VALUES ($1, $2, $3, $4, TRUE, 'medecin', $5) RETURNING id`,
       [doctors[0].nom, doctors[0].prenom, email, hash, doctors[0].id]
     );
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
-       VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 72 HOUR))`,
-      [result.insertId, tokenHash]
+       VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
+      [personnel[0].id, tokenHash]
     );
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
     const invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
@@ -59,7 +59,7 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
       expires_in_hours: 72
     });
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+    if (err.code === '23505') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
     next(err);
   }
 });
@@ -76,15 +76,14 @@ router.post('/comptes', async (req, res, next) => {
     const invitationToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(invitationToken).digest('hex');
     const hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
-    await db.query(
+    const { rows: users } = await db.query(
       `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
-       VALUES (?, ?, ?, ?, TRUE, ?, ?)`,
+       VALUES ($1, $2, $3, $4, TRUE, $5, $6) RETURNING id`,
       [nom, prenom, email, hash, role, role === 'medecin' ? medecin_id : null]
     );
-    const [users] = await db.query('SELECT id FROM personnel WHERE email=?', [email]);
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
-       VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 72 HOUR))`,
+       VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [users[0].id, tokenHash]
     );
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
@@ -93,15 +92,15 @@ router.post('/comptes', async (req, res, next) => {
       lien_invitation: `${baseUrl}/admin.html?activation=${invitationToken}`
     });
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+    if (err.code === '23505') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
     next(err);
   }
 });
 
 router.post('/comptes/:id/reset-password', async (req, res, next) => {
   try {
-    const [users] = await db.query(
-      'SELECT id FROM personnel WHERE id=? AND role IN (?, ?)',
+    const { rows: users } = await db.query(
+      'SELECT id FROM personnel WHERE id=$1 AND role IN ($2, $3)',
       [req.params.id, 'medecin', 'secretaire']
     );
     if (!users.length) return res.status(404).json({ error: 'Compte médecin ou secrétaire introuvable' });
@@ -110,13 +109,13 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     await db.query(
       `UPDATE password_reset_tokens SET used_at=NOW()
-       WHERE personnel_id=? AND used_at IS NULL`,
+       WHERE personnel_id=$1 AND used_at IS NULL`,
       [req.params.id]
     );
-    await db.query('UPDATE personnel SET must_change_password=TRUE WHERE id=?', [req.params.id]);
+    await db.query('UPDATE personnel SET must_change_password=TRUE WHERE id=$1', [req.params.id]);
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
-       VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
+       VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
       [req.params.id, tokenHash]
     );
     const baseUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
@@ -129,7 +128,7 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
 
 router.patch('/comptes/:id/toggle', async (req, res, next) => {
   try {
-    await db.query('UPDATE personnel SET actif=NOT actif WHERE id=?', [req.params.id]);
+    await db.query('UPDATE personnel SET actif=NOT actif WHERE id=$1', [req.params.id]);
     res.json({ message: 'Statut du compte modifié' });
   } catch (err) { next(err); }
 });
@@ -137,10 +136,10 @@ router.patch('/comptes/:id/toggle', async (req, res, next) => {
 router.get('/stats', async (req, res, next) => {
   try {
     const date = req.query.date || new Date().toISOString().slice(0, 10);
-    const [[rdvJour]] = await db.query('SELECT COUNT(*) AS n FROM rendez_vous WHERE DATE(date_heure)=?', [date]);
-    const [[attente]] = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='en_attente'");
-    const [[annules]] = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='annule' AND DATE(date_heure)=?", [date]);
-    const [[medecins]] = await db.query('SELECT COUNT(*) AS n FROM medecins WHERE actif=TRUE');
+    const { rows: [rdvJour] } = await db.query('SELECT COUNT(*) AS n FROM rendez_vous WHERE DATE(date_heure)=$1', [date]);
+    const { rows: [attente] } = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='en_attente'");
+    const { rows: [annules] } = await db.query("SELECT COUNT(*) AS n FROM rendez_vous WHERE statut='annule' AND DATE(date_heure)=$1", [date]);
+    const { rows: [medecins] } = await db.query('SELECT COUNT(*) AS n FROM medecins WHERE actif=TRUE');
     res.json({ rdv_jour: rdvJour.n, en_attente: attente.n, annules_jour: annules.n, medecins_actifs: medecins.n });
   } catch (err) { next(err); }
 });
