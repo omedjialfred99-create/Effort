@@ -4,7 +4,6 @@
   "description": "API de gestion des rendez-vous - Clinique Effort",
   "type": "module",
   "scripts": {
-    "build": "echo 'Build OK'",
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "setup-db": "node scripts/setup-db.js",
