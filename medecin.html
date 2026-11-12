@@ -543,6 +543,11 @@
         handleActivation().then(isAct => {
             if (!isAct) loadDoctorDashboard();
         });
+        // Auto‑refresh appointments every 30 s so new bookings appear without manual reload
+        setInterval(() => {
+            const token = localStorage.getItem('clinique_effort_medecin_token');
+            if (token) loadAppointments();
+        }, 30000);
     </script>
 </body>
 </html>
