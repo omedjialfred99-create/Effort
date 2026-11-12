@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Médecin — Clinique Effort Kinshasa</title>
+    <link rel="stylesheet" href="structure.css">
+    <style>
+        .doctor-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .doctor-badge::before {
+            content: "✚";
+            font-size: 0.9rem;
+        }
+        .consultation-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .consultation-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .consultation-card.is-present {
+            border-left: 5px solid #10b981;
+        }
+        .consultation-card.is-termine {
+            opacity: 0.75;
+            background: #f8fafc;
+        }
+        .patient-time {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0284c7;
+            min-width: 75px;
+        }
+        .patient-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 1.15rem;
+            color: #0f172a;
+        }
+        .patient-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+        .patient-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .consultation-note {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: #334155;
+            font-style: italic;
+        }
+        .date-quick-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .date-quick-btn:hover {
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <main class="admin-page">
+
+        <!-- 1. PANNEAU ACTIVATION DU COMPTE MÉDECIN (Accessible via lien unique) -->
+        <section id="activation-panel" class="panel login-panel hidden" aria-live="polite">
+            <div class="brand-mark">CE</div>
+            <p class="eyebrow">CLINIQUE EFFORT · ACCÈS MÉDECIN</p>
+            <h1 id="act-title">Activation de votre espace médecin</h1>
+            <p id="act-subtitle" class="muted">Vérification de votre lien en cours...</p>
+
+            <div id="act-error-state" class="hidden">
+                <p id="act-error-message" class="error-box"></p>
+                <button id="act-go-login" type="button" class="secondary">Se connecter à l'espace médecin</button>
+            </div>
+
+            <form id="act-form" class="hidden">
+                <div id="act-welcome-box" class="info-box">
+                    Bienvenue dans le corps médical de la Clinique Effort. Définissez votre mot de passe pour accéder directement à votre planning de consultations.
+                </div>
+                
+                <label for="act-email">Votre adresse email professionnelle</label>
+                <input id="act-email" type="email" readonly disabled>
+                
+                <label for="act-password">Votre mot de passe</label>
+                <input id="act-password" type="password" required minlength="8" placeholder="Au moins 8 caractères" autocomplete="new-password">
+                
+                <label for="act-password-confirm">Confirmez votre mot de passe</label>
+                <input id="act-password-confirm" type="password" required minlength="8" placeholder="Retapez le mot de passe" autocomplete="new-password">
+
+                <button id="act-submit-btn" type="submit">Valider et accéder à mon espace</button>
+            </form>
+            <p id="act-message" class="message" role="alert"></p>
+        </section>
+
+        <!-- 2. PANNEAU DE CONNEXION MÉDECIN -->
+        <section id="login-panel" class="panel login-panel">
+            <div class="brand-mark">CE</div>
+            <p class="eyebrow">CLINIQUE EFFORT KINSHASA</p>
+            <h1>Espace Médecin</h1>
+            <p class="muted">Connectez-vous pour consulter vos patients et gérer vos consultations.</p>
+            <form id="login-form">
+                <label for="email">Adresse email du praticien</label>
+                <input id="email" type="email" required placeholder="dr.nom@clinique-effort.cd" autocomplete="username">
+                
+                <label for="password">Mot de passe</label>
+                <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password">
+                
+                <button type="submit">Se connecter</button>
+            </form>
+            <p id="login-message" class="message" role="alert"></p>
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="index.html" class="muted" style="font-size: 0.9rem;">← Retour au site public</a>
+            </div>
+        </section>
+
+        <!-- 3. TABLEAU DE BORD MÉDECIN -->
+        <section id="dashboard-panel" class="panel dashboard-panel hidden">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ESPACE MÉDICAL</p>
+                    <h1 id="doctor-title">Dr. <span id="doctor-display-name"></span></h1>
+                    <p class="muted">Bienvenue dans votre interface de consultations</p>
+                </div>
+                <div class="header-actions">
+                    <span class="doctor-badge">Médecin</span>
+                    <button id="doctor-profile-btn" type="button" class="secondary">Mon profil</button>
+                    <button id="doctor-logout" type="button" class="secondary">Se déconnecter</button>
+                </div>
+            </header>
+
+            <p id="dashboard-message" class="message" role="alert"></p>
+
+            <!-- STATISTIQUES DU JOUR -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <strong id="stat-total">0</strong>
+                    <span>RDV Aujourd'hui</span>
+                </article>
+                <article class="stat-card">
+                    <strong id="stat-en-attente">0</strong>
+                    <span>En attente</span>
+                </article>
+                <article class="stat-card">
+                    <strong id="stat-termines">0</strong>
+                    <span>Terminés</span>
+                </article>
+            </div>
+
+            <!-- SECTION PLANNING -->
+            <section id="planning-section" class="management-card" style="margin-top: 20px;">
+                <div class="toolbar" style="margin-bottom: 20px;">
+                    <div>
+                        <h2>Planning de consultations</h2>
+                        <p class="muted">Gérez les rendez-vous et rédigez vos comptes-rendus</p>
+                    </div>
+                    <div class="toolbar-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button id="btn-today" type="button" class="date-quick-btn">Aujourd'hui</button>
+                        <input id="planning-date" type="date">
+                        <button id="btn-refresh" type="button" class="secondary">Actualiser</button>
+                    </div>
+                </div>
+
+                <div id="doctor-appointments-list">
+                    <p class="muted">Chargement du planning...</p>
+                </div>
+            </section>
+
+            <!-- SECTION PROFIL (Masquée par défaut) -->
+            <section id="doctor-profile-section" class="profile-grid hidden" style="margin-top: 20px;">
+                <section class="management-card">
+                    <p class="eyebrow">MES INFORMATIONS</p>
+                    <h2>Mon profil praticien</h2>
+                    <form id="profile-form">
+                        <div class="form-row">
+                            <div><label for="profile-prenom">Prénom</label><input id="profile-prenom" required></div>
+                            <div><label for="profile-nom">Nom</label><input id="profile-nom" required></div>
+                        </div>
+                        <label for="profile-email">Adresse email</label>
+                        <input id="profile-email" type="email" required>
+                        <button type="submit">Enregistrer les modifications</button>
+                    </form>
+                </section>
+                <section class="management-card">
+                    <p class="eyebrow">SÉCURITÉ</p>
+                    <h2>Modifier mon mot de passe</h2>
+                    <form id="password-form">
+                        <label for="current-password">Mot de passe actuel</label>
+                        <input id="current-password" type="password" required autocomplete="current-password">
+                        <label for="new-password">Nouveau mot de passe</label>
+                        <input id="new-password" type="password" minlength="8" required autocomplete="new-password">
+                        <label for="confirm-password">Confirmation</label>
+                        <input id="confirm-password" type="password" minlength="8" required autocomplete="new-password">
+                        <button type="submit">Changer le mot de passe</button>
+                    </form>
+                </section>
+            </section>
+
+        </section>
+
+    </main>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        };
+
+        const tokenKey = 'clinique_effort_medecin_token';
+
+        async function api(url, options = {}) {
+            const token = localStorage.getItem(tokenKey);
+            const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+            if (token) headers.Authorization = 'Bearer ' + token;
+            const res = await fetch(url, { ...options, headers });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || data.message || 'Une erreur est survenue.');
+            return data;
+        }
+
+        function setMessage(msg, isError = true) {
+            const el = $('dashboard-message');
+            el.textContent = msg || '';
+            el.className = `message${isError ? '' : ' success'}`;
+            if (!isError) {
+                setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 4000);
+            }
+        }
+
+        // --- 1. Gestion du lien d'activation ---
+        async function handleActivation() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('activation') || params.get('token');
+            if (!token) return false;
+
+            $('login-panel').classList.add('hidden');
+            $('dashboard-panel').classList.add('hidden');
+            $('activation-panel').classList.remove('hidden');
+
+            try {
+                const data = await api(`/api/auth/verify-token?token=${encodeURIComponent(token)}`);
+                $('act-subtitle').textContent = 'Bienvenue Dr. ' + data.prenom + ' ' + data.nom;
+                $('act-email').value = data.email || '';
+                $('act-title').textContent = `Bienvenue Dr. ${data.prenom} ${data.nom}`;
+                $('act-form').classList.remove('hidden');
+                $('act-password').focus();
+
+                $('act-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    $('act-message').textContent = '';
+                    const pwd = $('act-password').value;
+                    const pwdConfirm = $('act-password-confirm').value;
+
+                    if (pwd !== pwdConfirm) {
+                        $('act-message').textContent = 'Les deux mots de passe ne correspondent pas.';
+                        return;
+                    }
+
+                    try {
+                        $('act-submit-btn').disabled = true;
+                        $('act-submit-btn').textContent = 'Activation en cours...';
+
+                        const res = await api('/api/auth/complete-activation', {
+                            method: 'POST',
+                            body: JSON.stringify({ token, password: pwd })
+                        });
+
+                        localStorage.setItem(tokenKey, res.token);
+                        history.replaceState({}, document.title, location.pathname);
+
+                        $('activation-panel').classList.add('hidden');
+                        await loadDoctorDashboard();
+                        setMessage('Votre compte est activé. Bienvenue dans votre espace médecin !', false);
+                    } catch (err) {
+                        $('act-submit-btn').disabled = false;
+                        $('act-submit-btn').textContent = 'Valider et accéder à mon espace';
+                        $('act-message').textContent = err.message;
+                    }
+                };
+            } catch (err) {
+                $('act-subtitle').textContent = 'Lien invalide ou expiré';
+                $('act-error-message').textContent = err.message || 'Ce lien d’activation a expiré ou a déjà été utilisé.';
+                $('act-error-state').classList.remove('hidden');
+            }
+
+            return true;
+        }
+
+        $('act-go-login').addEventListener('click', () => {
+            history.replaceState({}, document.title, location.pathname);
+            $('activation-panel').classList.add('hidden');
+            $('login-panel').classList.remove('hidden');
+        });
+
+        // --- 2. Chargement du dashboard médecin ---
+        async function loadDoctorDashboard() {
+            const token = localStorage.getItem(tokenKey);
+            if (!token) {
+                $('dashboard-panel').classList.add('hidden');
+                $('login-panel').classList.remove('hidden');
+                return false;
+            }
+
+            let profile;
+            try {
+                profile = await api('/api/auth/me');
+            } catch (err) {
+                localStorage.removeItem(tokenKey);
+                $('dashboard-panel').classList.add('hidden');
+                $('login-panel').classList.remove('hidden');
+                $('login-message').textContent = 'Session expirée. Veuillez vous reconnecter.';
+                return false;
+            }
+
+            if (profile.role !== 'medecin') {
+                setMessage('Cet espace est réservé aux médecins. Redirection vers l’espace d’administration...');
+                setTimeout(() => { window.location.href = 'admin.html'; }, 1500);
+                return false;
+            }
+
+            $('login-panel').classList.add('hidden');
+            $('activation-panel').classList.add('hidden');
+            $('dashboard-panel').classList.remove('hidden');
+
+            $('doctor-display-name').textContent = `${profile.prenom} ${profile.nom}`;
+            $('profile-prenom').value = profile.prenom;
+            $('profile-nom').value = profile.nom;
+            $('profile-email').value = profile.email;
+
+            // Date du planning
+            if (!$('planning-date').value) {
+                $('planning-date').value = new Date().toISOString().slice(0, 10);
+            }
+
+            await Promise.all([loadStats(), loadAppointments()]);
+            return true;
+        }
+
+        async function loadStats() {
+            try {
+                const s = await api('/api/medecin/stats');
+                $('stat-total').textContent = s.total_jour || 0;
+                $('stat-en-attente').textContent = s.en_attente_jour || 0;
+                $('stat-termines').textContent = s.termines_jour || 0;
+            } catch (e) {
+                console.warn('Stats non disponibles:', e.message);
+            }
+        }
+
+        async function loadAppointments() {
+            const date = $('planning-date').value || new Date().toISOString().slice(0, 10);
+            try {
+                const rows = await api(`/api/medecin/planning?date=${encodeURIComponent(date)}`);
+                const container = $('doctor-appointments-list');
+                
+                if (!rows.length) {
+                    container.innerHTML = '<p class="empty-state" style="padding: 30px; text-align: center; color: #64748b;">Aucun rendez-vous prévu pour cette date.</p>';
+                    return;
+                }
+
+                container.innerHTML = rows.map(item => {
+                    const timeStr = new Date(item.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    const isTermine = item.statut === 'termine';
+                    const isPresent = item.present === true;
+                    
+                    return `
+                        <div class="consultation-card ${isPresent ? 'is-present' : ''} ${isTermine ? 'is-termine' : ''}">
+                            <div class="patient-time">${timeStr}</div>
+                            <div class="patient-info" style="flex: 1;">
+                                <h3>${escapeHtml(item.patient_prenom)} ${escapeHtml(item.patient_nom)}</h3>
+                                <p>📞 <strong>${escapeHtml(item.telephone)}</strong> · Motif : <em>${escapeHtml(item.motif || 'Consultation générale')}</em></p>
+                                ${item.note_medecin ? `<div class="consultation-note">Note : ${escapeHtml(item.note_medecin)}</div>` : ''}
+                            </div>
+                            <div class="patient-actions">
+                                <span class="badge ${item.statut}">${escapeHtml(item.statut)}</span>
+                                ${!isTermine && !isPresent ? `<button class="secondary" data-present="${item.id}" type="button">Marquer Présent</button>` : ''}
+                                ${!isTermine ? `<button class="primary" data-finish="${item.id}" type="button">Terminer consultation</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                $('doctor-appointments-list').innerHTML = `<p class="error-box">${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        // --- 3. Événements ---
+        $('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            $('login-message').textContent = '';
+            try {
+                const data = await api('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email: $('email').value, password: $('password').value })
+                });
+
+                if (data.role !== 'medecin') {
+                    if (data.role === 'admin') {
+                        window.location.href = 'admin.html';
+                        return;
+                    }
+                }
+
+                localStorage.setItem(tokenKey, data.token);
+                $('login-form').reset();
+                await loadDoctorDashboard();
+            } catch (err) {
+                $('login-message').textContent = err.message;
+            }
+        });
+
+        $('doctor-logout').addEventListener('click', () => {
+            localStorage.removeItem(tokenKey);
+            window.location.reload();
+        });
+
+        $('btn-today').addEventListener('click', () => {
+            $('planning-date').value = new Date().toISOString().slice(0, 10);
+            loadAppointments();
+        });
+
+        $('planning-date').addEventListener('change', loadAppointments);
+        $('btn-refresh').addEventListener('click', () => {
+            loadStats();
+            loadAppointments();
+        });
+
+        // Gestion des actions Présent et Terminer
+        document.addEventListener('click', async (e) => {
+            const btnPresent = e.target.closest('[data-present]');
+            if (btnPresent) {
+                const id = btnPresent.dataset.present;
+                try {
+                    await api(`/api/medecin/rendez-vous/${id}/present`, { method: 'PATCH', body: JSON.stringify({ present: true }) });
+                    setMessage('Patient marqué comme présent.', false);
+                    await loadAppointments();
+                    await loadStats();
+                } catch (err) { setMessage(err.message); }
+            }
+
+            const btnFinish = e.target.closest('[data-finish]');
+            if (btnFinish) {
+                const id = btnFinish.dataset.finish;
+                const note = window.prompt('Note de consultation ou prescription (facultatif) :', '');
+                if (note !== null) {
+                    try {
+                        await api(`/api/medecin/rendez-vous/${id}/terminer`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ note_medecin: note.trim() || null })
+                        });
+                        setMessage('Consultation enregistrée et terminée.', false);
+                        await loadAppointments();
+                        await loadStats();
+                    } catch (err) { setMessage(err.message); }
+                }
+            }
+        });
+
+        // Afficher / Masquer Profil
+        $('doctor-profile-btn').addEventListener('click', () => {
+            const isVisible = !$('doctor-profile-section').classList.contains('hidden');
+            if (isVisible) {
+                $('doctor-profile-section').classList.add('hidden');
+                $('planning-section').classList.remove('hidden');
+                $('doctor-profile-btn').textContent = 'Mon profil';
+            } else {
+                $('planning-section').classList.add('hidden');
+                $('doctor-profile-section').classList.remove('hidden');
+                $('doctor-profile-btn').textContent = 'Retour au planning';
+            }
+        });
+
+        $('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await api('/api/auth/me', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        prenom: $('profile-prenom').value,
+                        nom: $('profile-nom').value,
+                        email: $('profile-email').value
+                    })
+                });
+                setMessage('Profil mis à jour.', false);
+                $('doctor-display-name').textContent = `${$('profile-prenom').value} ${$('profile-nom').value}`;
+            } catch (err) { setMessage(err.message); }
+        });
+
+        $('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cur = $('current-password').value;
+            const np = $('new-password').value;
+            const cp = $('confirm-password').value;
+            if (np !== cp) {
+                setMessage('Le nouveau mot de passe et sa confirmation ne correspondent pas.');
+                return;
+            }
+            try {
+                await api('/api/auth/password', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ currentPassword: cur, newPassword: np })
+                });
+                setMessage('Mot de passe modifié avec succès.', false);
+                $('password-form').reset();
+            } catch (err) { setMessage(err.message); }
+        });
+
+        // Démarrage
+        handleActivation().then(isAct => {
+            if (!isAct) loadDoctorDashboard();
+        });
+    </script>
+</body>
+</html>

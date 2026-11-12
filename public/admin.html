@@ -107,6 +107,9 @@
                                 <input id="doctor-phone" type="tel" placeholder="Ex: +243...">
                                 <label for="doctor-email">Email professionnel (pour générer l'accès)</label>
                                 <input id="doctor-email" type="email" placeholder="medecin@clinique-effort.cd">
+                                <label for="doctor-password">Mot de passe provisoire (facultatif)</label>
+                                <input id="doctor-password" type="text" placeholder="Ex: Docteur2026! (ou vide pour lien d'activation)">
+                                <small class="muted" style="display:block;margin-top:-6px;margin-bottom:14px;">Si renseigné, le médecin peut se connecter directement sur <a href="medecin.html" target="_blank" style="color:#0284c7;font-weight:600;">medecin.html</a> sans lien d'activation.</small>
                                 <button type="submit">Enregistrer le médecin</button>
                             </form>
                         </section>
@@ -601,7 +604,8 @@
                         nom: $('doctor-last-name').value,
                         specialite_id: $('doctor-specialty').value,
                         telephone: $('doctor-phone').value,
-                        email: $('doctor-email').value || undefined
+                        email: $('doctor-email').value?.trim() || undefined,
+                        password: $('doctor-password').value?.trim() || undefined
                     })
                 });
                 event.target.reset();
@@ -625,7 +629,8 @@
                         prenom: $('secretary-first-name').value,
                         nom: $('secretary-last-name').value,
                         email: $('secretary-email').value,
-                        role: 'secretaire'
+                        role: 'secretaire',
+                        password: $('secretary-password').value?.trim() || undefined
                     })
                 });
                 event.target.reset();
