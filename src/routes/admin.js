@@ -58,6 +58,14 @@ router.post('/medecins', async (req, res, next) => {
     );
     const doctorId = doctors[0].id;
 
+    // Ajouter des disponibilités par défaut (Lundi au Vendredi, 08h00 - 16h00)
+    for (let day = 1; day <= 5; day++) {
+      await client.query(
+        'INSERT INTO disponibilites (medecin_id, jour_semaine, heure_debut, heure_fin) VALUES ($1, $2, $3, $4)',
+        [doctorId, day, '08:00', '16:00']
+      );
+    }
+
     let invitationUrl = null;
     let message = 'Médecin créé avec succès.';
 
