@@ -7,24 +7,14 @@ import { auth, requireRole } from '../middleware/auth.js';
 const router = Router();
 router.use(auth, requireRole('admin'));
 
-function getAppUrl() {
-  const appUrl = process.env.APP_URL?.replace(/\/+$/, '');
-  if (!appUrl) {
-    throw new Error('APP_URL must be configured with the public website URL before generating staff links.');
+function getAppUrl(req) {
+  let appUrl = process.env.APP_URL?.replace(/\/+$/, '');
+  if (!appUrl && req) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.get('host');
+    if (host) appUrl = `${proto}://${host}`;
   }
-  let url;
-  try {
-    url = new URL(appUrl);
-  } catch {
-    throw new Error('APP_URL must be a valid public HTTP or HTTPS URL.');
-  }
-  if (!['http:', 'https:'].includes(url.protocol)) {
-    throw new Error('APP_URL must use HTTP or HTTPS.');
-  }
-  if (process.env.NODE_ENV === 'production' && ['localhost', '127.0.0.1'].includes(url.hostname)) {
-    throw new Error('APP_URL must use the public website URL in production, not localhost.');
-  }
-  return appUrl;
+  return appUrl || 'https://effort-hazel.vercel.app';
 }
 
 router.get('/comptes', async (req, res, next) => {
@@ -84,7 +74,7 @@ router.post('/medecins', async (req, res, next) => {
          VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
         [personnel[0].id, tokenHash]
       );
-      const baseUrl = getAppUrl();
+      const baseUrl = getAppUrl(req);
       invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
     }
 
@@ -127,7 +117,7 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [personnel[0].id, tokenHash]
     );
-    const baseUrl = getAppUrl();
+    const baseUrl = getAppUrl(req);
     const invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
     res.status(201).json({
       message: 'Accès médecin créé. Copiez le lien ci-dessous pour le transmettre au médecin.',
@@ -162,7 +152,7 @@ router.post('/comptes', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [users[0].id, tokenHash]
     );
-    const baseUrl = getAppUrl();
+    const baseUrl = getAppUrl(req);
     res.status(201).json({
       message: 'Compte créé',
       lien_invitation: `${baseUrl}/admin.html?activation=${invitationToken}`
@@ -194,7 +184,7 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [req.params.id, tokenHash]
     );
-    const baseUrl = getAppUrl();
+    const baseUrl = getAppUrl(req);
     res.json({
       message: 'Nouveau lien d’activation créé. Il expire dans 72 heures.',
       lien_recuperation: `${baseUrl}/admin.html?activation=${token}`

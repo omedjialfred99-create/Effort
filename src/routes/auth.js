@@ -6,6 +6,7 @@ import { db } from '../config/db.js';
 import { auth } from '../middleware/auth.js';
 
 const router = Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'clinique-effort-super-secret-jwt-key-2026';
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -22,7 +23,7 @@ router.post('/login', async (req, res, next) => {
     }
     const token = jwt.sign(
       { id: user.id, role: user.role, medecin_id: user.medecin_id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '12h' }
     );
     res.json({ token, role: user.role, nom: `${user.nom} ${user.prenom}` });
@@ -121,7 +122,7 @@ router.post('/complete-activation', async (req, res, next) => {
 
     const accessToken = jwt.sign(
       { id: user.id, role: user.role, medecin_id: user.medecin_id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '12h' }
     );
 
@@ -182,7 +183,7 @@ router.post('/activate', async (req, res, next) => {
 
     const accessToken = jwt.sign(
       { id: rows[0].id, role: rows[0].role, medecin_id: rows[0].medecin_id, password_setup: true },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '30m' }
     );
     res.json({ token: accessToken, message: 'Accès temporaire accordé. Définissez votre mot de passe dans votre profil.' });
@@ -255,7 +256,7 @@ router.patch('/password', auth, async (req, res, next) => {
     );
     const token = jwt.sign(
       { id: req.user.id, role: req.user.role, medecin_id: req.user.medecin_id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '12h' }
     );
     res.json({ token, message: 'Mot de passe défini. Votre espace est maintenant activé.' });
