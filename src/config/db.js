@@ -11,6 +11,6 @@ const isLocalhost = process.env.DATABASE_URL.includes('localhost') || process.en
 
 export const db = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: Number(process.env.DB_POOL_SIZE) || (process.env.NETLIFY ? 2 : 10),
+  max: Number(process.env.DB_POOL_SIZE) || (process.env.NETLIFY || process.env.VERCEL ? 2 : 10),
   ssl: isLocalhost ? false : { rejectUnauthorized: false }
 });
