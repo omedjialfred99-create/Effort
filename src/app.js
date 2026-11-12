@@ -18,7 +18,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Servir les fichiers statiques (HTML, CSS, JS, images)
+// Servir les fichiers statiques (public/ d'abord, puis racine)
+app.use(express.static(path.resolve(rootDir, '..', 'public')));
 app.use(express.static(path.resolve(rootDir, '..')));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

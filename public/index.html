@@ -1,0 +1,906 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="iWOO57pjtuvU4pq2GuddKxzrLuKxpMS_CCbpXzHx2KA" />
+    <meta name="description" content="Clinique Effort - Soins d'excellence, urgences médicales 24h/24 et 7j/7, consultations spécialisées et plateau technique de pointe.">
+    <title>Clinique Effort | Urgences 24/7 - Kinshasa, RDC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="cmef.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="cmef.svg">
+    <link rel="manifest" href="site.webmanifest">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <aside class="top-bar" aria-label="Informations rapides">
+        <div class="container top-bar-content">
+            <div class="top-bar-left">
+                <span class="info-item">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    012, Kinshasa, RDC
+                </span>
+                <span class="info-item desktop-only">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Ouvert 24h/24 &amp; 7j/7
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <div class="emergency-badge">
+                    <span class="pulse-dot"></span>
+                    <strong>Urgences 24/7 :</strong>
+                    <a href="tel:0819456654" class="emergency-phone">0819 456 654</a>
+                    <span class="samu-badge"><a href="tel:0819456654">Clinique Effort</a></span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="main-header" id="header">
+        <div class="container nav-wrapper">
+            <div class="logo">
+                <a href="#accueil" class="logo-link">
+                    <img src="cmef.svg" alt="Logo de la Clinique Effort" class="logo-img" width="36" height="36">
+                </a>
+            </div>
+
+            <nav class="nav-menu" id="navMenu" aria-label="Menu principal">
+                <ul class="nav-list">
+                    <li><a href="#accueil" class="nav-link active">Accueil</a></li>
+                    <li><a href="#urgences" class="nav-link nav-emergency-link">Urgences 24/7</a></li>
+                    <li><a href="#services" class="nav-link">Pôles & Soins</a></li>
+                    <li><a href="#a-propos" class="nav-link">La Clinique</a></li>
+                    <li><a href="#guide-patient" class="nav-link">Espace Patient</a></li>
+                    <li><a href="#contact" class="nav-link">Accès & Contact</a></li>
+                </ul>
+                <div class="mobile-cta-group">
+                    <button class="btn btn-emergency mobile-btn" onclick="openEmergencyModal()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 
+                            2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 
+                            2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        Urgence Immédiate
+                    </button>
+                    <button class="btn btn-primary mobile-btn" onclick="openAppointmentModal()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2"
+                             x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Prendre rendez-vous
+                    </button>
+                </div>
+            </nav>
+
+            <div class="nav-actions">
+                <label class="language-switcher" for="languageSelect">
+                    <span class="sr-only">Choisir la langue</span>
+                    <select id="languageSelect" aria-label="Choisir la langue">
+                        <option value="fr">FR</option>
+                        <option value="en">EN</option>
+                    </select>
+                </label>
+                <a href="#urgences" class="btn btn-emergency-outline desktop-only">
+                    <span class="live-dot"></span>
+                    Urgences 24/7
+                </a>
+                <button class="btn btn-primary" onclick="openAppointmentModal()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2">
+                    </rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Prendre RDV</span>
+                </button>
+
+                <button class="hamburger" id="hamburgerBtn" aria-label="Ouvrir le menu" aria-expanded="false">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="accueil">
+            <div class="hero-bg-overlay"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-icon"><i class="fa-regular fa-hospital"></i></span>
+                        <span>Établissement conventionné & certifié HAS Qualité des Soins</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Votre santé, notre engagement <span>humain et d'excellence</span>
+                    </h1>
+                    <p class="hero-description">
+                        Parce que chaque minute compte, nos services d'urgences, nos équipes médicales spécialisées et nos plateaux techniques de pointe sont mobilisés 24h/24 pour vous garantir une prise en charge immédiate, bienveillante et sécurisée.
+                    </p>
+                    
+                    <div class="hero-cta-group">
+                        <button class="btn btn-primary btn-lg" onclick="openAppointmentModal()">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            Prendre rendez-vous en ligne
+                        </button>
+                        <a href="#urgences" class="btn btn-emergency btn-lg">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            Service des Urgences (24/7)
+                        </a>
+                    </div>
+
+                    <div class="hero-trust-row">
+                        <div class="trust-item">
+                            <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            <div>
+                                <strong>Urgences 24/7</strong>
+                                <span>Prise en charge sans délai</span>
+                            </div>
+                        </div>
+                        <div class="trust-item">
+                            <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <div>
+                                <strong>+20 Praticiens</strong>
+                                <span>Médecins & chirurgiens</span>
+                            </div>
+                        </div>
+                        <div class="trust-item">
+                            <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            <div>
+                                <strong>Délai optimisé</strong>
+                                <span>Parcours patient fluide</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual-card">
+                    <div class="hospital-showcase">
+                        <div class="showcase-main-image">
+                            <img src="Hopital.jpeg" alt="Bâtiment principal de la Clinique Effort" class="main-img">
+                            <div class="img-badge-floating">
+                                <span class="badge-dot"></span>
+                                <span>Plateau technique moderne 2026</span>
+                            </div>
+                        </div>
+                        <div class="showcase-mini-grid">
+                            <div class="mini-card" onclick="scrollToSection('urgences')">
+                                <img src="urgence.jpeg" alt="Service des urgences médicales">
+                                <div class="mini-card-overlay">
+                                    <span class="mini-tag tag-urg">Urgences 24/7</span>
+                                    <h4>Pôle Traumatologie</h4>
+                                </div>
+                            </div>
+                            <div class="mini-card" onclick="scrollToSection('services')">
+                                <img src="care.jpeg" alt="Personnel soignant attentif">
+                                <div class="mini-card-overlay">
+                                    <span class="mini-tag tag-soins">Soins continus</span>
+                                    <h4>Équipe pluridisciplinaire</h4>
+                                </div>
+                            </div>
+                            <div class="mini-card" onclick="scrollToSection('contact')">
+                                <img src="location.jpeg" alt="Accès et localisation du centre">
+                                <div class="mini-card-overlay">
+                                    <span class="mini-tag tag-loc">Accès facile</span>
+                                    <h4>Parking & Transports</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="emergency-banner-section" id="urgences">
+            <div class="container">
+                <div class="emergency-card">
+                    <div class="emergency-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div class="emergency-body">
+                        <div class="emergency-header">
+                            <span class="badge-live-urg">OUVERT EN CONTINU 24H/24 & 7J/7</span>
+                            <h2>Service des Urgences Adultes & Pédiatriques</h2>
+                        </div>
+                        <p>
+                            En cas de détresse vitale, malaise cardiaque, AVC ou traumatisme sévère, notre équipe d'urgence composée d'urgentistes, réanimateurs et radiologues intervient sans délai.
+                        </p>
+                        <div class="emergency-contacts-row">
+                            <a href="tel:0819456654" class="urg-btn urg-direct">
+                                <span class="urg-num">0819</span>
+                                <div>
+                                    <span class="urg-sub">456 654</span>
+                                </div>
+                            </a>
+                            <a href="tel:0819456654" class="urg-btn urg-direct">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                <div>
+                                    <span class="urg-title">0819 456 654</span>
+                                    <span class="urg-sub">Standard Urgences Effort</span>
+                                </div>
+                            </a>
+                            <a href="#contact" class="urg-btn urg-itineraire">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                                <div>
+                                    <span class="urg-title">Itinéraire Urgences</span>
+                                    <span class="urg-sub">Entrée dédiée ambulances & piétons</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <div class="container stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">450+</span>
+                    <span class="stat-label">Patients soignés chaque année</span>
+                    <p class="stat-sub">En consultations et hospitalisations</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">20+</span>
+                    <span class="stat-label">Médecins & Spécialistes</span>
+                    <p class="stat-sub">Équipes soignantes hautement qualifiées</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Permanence des soins</span>
+                    <p class="stat-sub">Urgences, réanimation et maternité</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">98,4%</span>
+                    <span class="stat-label">Satisfaction des usagers</span>
+                    <p class="stat-sub">Taux de satisfaction patients</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="services-section" id="services">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge">Nos Domaines d'Expertise</span>
+                    <h2 class="section-title">Pôles Médicaux & Soins Spécialisés</h2>
+                    <p class="section-description">
+                        Une prise en charge globale, coordonnée et bienveillante pour chaque étape de votre parcours de santé.
+                    </p>
+
+                    <div class="service-filters" role="tablist">
+                        <button class="filter-btn active" data-filter="all">Tous les services</button>
+                        <button class="filter-btn" data-filter="urgences">Urgences & Soins Critiques</button>
+                        <button class="filter-btn" data-filter="chirurgie">Chirurgie & Ambulatoire</button>
+                        <button class="filter-btn" data-filter="famille">Maternité & Pédiatrie</button>
+                        <button class="filter-btn" data-filter="imagerie">Imagerie & Biologie</button>
+                    </div>
+                </div>
+
+                <div class="services-grid" id="servicesGrid">
+                    <article class="service-card" data-category="urgences">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-red">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            </div>
+                            <span class="tag-status live">24h/24 & 7j/7</span>
+                        </div>
+                        <h3>Service des Urgences & Réanimation</h3>
+                        <p>Prise en charge médico-chirurgicale immédiate, déchocage, soins intensifs et lits d'hospitalisation de courte durée (UHCD).</p>
+                        <ul class="service-features">
+                            <li>Triage médical prioritaire</li>
+                            <li>Radiologie d'urgence dédiée</li>
+                            <li>Filière AVC & Cardiologie en alerte H24</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <a href="#urgences" class="service-link">Consulter les urgences &rarr;</a>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Urgences & Réanimation')">Prendre RDV</button>
+                        </div>
+                    </article>
+
+                    <article class="service-card" data-category="chirurgie">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            </div>
+                            <span class="tag-status">Secteur 1 & 2</span>
+                        </div>
+                        <h3>Cardiologie & Maladies Vasculaires</h3>
+                        <p>Dépistage, prévention des risques coronariens, épreuves d'effort, pose de pacemakers et unité de soins intensifs cardiologiques (USIC).</p>
+                        <ul class="service-features">
+                            <li>Échographie cardiaque 3D & Holter</li>
+                            <li>Épreuves d'effort sur vélo médicalisé</li>
+                            <li>Suivi d'hypertension et d'insuffisance</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <span class="lead-doctor">Dr. O. Athanase, Chef de pôle</span>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Cardiologie')">Prendre RDV</button>
+                        </div>
+                    </article>
+
+                    <article class="service-card" data-category="chirurgie">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-teal">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            </div>
+                            <span class="tag-status">Bloc Haute Précision</span>
+                        </div>
+                        <h3>Chirurgie Générale & Ambulatoire</h3>
+                        <p>Interventions chirurgicales programmées avec retour à domicile le jour même grâce à nos techniques mini-invasives et robotisées.</p>
+                        <ul class="service-features">
+                            <li>Chirurgie digestive & cœlioscopie</li>
+                            <li>Orthopédie et traumatologie du sport</li>
+                            <li>Parcours ambulatoire fluide (J0)</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <span class="lead-doctor">Dr. J. Kabila, Chirurgien</span>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Chirurgie Ambulatoire')">Prendre RDV</button>
+                        </div>
+                    </article>
+
+                    <article class="service-card" data-category="famille">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-purple">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                            </div>
+                            <span class="tag-status">Pédiatrie &amp; Maternité</span>
+                        </div>
+                        <h3>Maternité, Obstétrique & Pédiatrie</h3>
+                        <p>Accompagnement personnalisé pour l'arrivée de votre enfant, salles de naissance nature, néonatalogie et consultations pédiatriques complètes.</p>
+                        <ul class="service-features">
+                            <li>Préparation à la naissance & haptonomie</li>
+                            <li>Suivi de grossesse physiologique & à risque</li>
+                            <li>Urgences pédiatriques dédiées</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <span class="lead-doctor">Dr. C. Dumont & Sages-femmes</span>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Maternité & Pédiatrie')">Prendre RDV</button>
+                        </div>
+                    </article>
+
+                    <article class="service-card" data-category="imagerie">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-indigo">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            </div>
+                            <span class="tag-status">Imagerie avancée</span>
+                        </div>
+                        <h3>Imagerie Médicale (IRM & Scanner)</h3>
+                        <p>Plateau d'imagerie diagnostique de pointe garantissant des rendez-vous rapides et des résultats transmis immédiatement à votre praticien.</p>
+                        <ul class="service-features">
+                            <li>IRM haut champ 3 Tesla & Scanner HD</li>
+                            <li>Échographie générale & Doppler couleur</li>
+                            <li>Radiologie interventionnelle & Mammographie</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <span class="lead-doctor">Dr. A. Lukoki, Radiologue</span>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Imagerie Médicale (IRM/Scanner)')">Prendre RDV</button>
+                        </div>
+                    </article>
+
+                        <article class="service-card" data-category="laboratoire">
+                        <div class="service-card-header">
+                            <div class="service-icon-box bg-green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.2 18.2a2 2 0 0 0 1.66 2.8h12.28a2 2 0 0 0 1.66-2.8L14 9.31V2h-4z"></path></svg>
+                            </div>
+                            <span class="tag-status">Analyses 24/7</span>
+                        </div>
+                        <h3>Laboratoire de Biologie Médicale</h3>
+                        <p>Analyses de biochimie, hématologie, immunologie et bactériologie avec transmission sécurisée des résultats sur votre espace patient.</p>
+                        <ul class="service-features">
+                            <li>Sans rendez-vous dès 07h00 du matin</li>
+                            <li>Résultats urgents disponibles en 1h</li>
+                            <li>Dépistages et bilans sanguins complets</li>
+                        </ul>
+                        <div class="service-card-footer">
+                            <span class="lead-doctor">Dr. F. Nzinga, Biologiste</span>
+                            <button class="btn-rdv-card" onclick="openAppointmentModal('Laboratoire de Biologie')">Prendre RDV</button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section" id="a-propos">
+            <div class="container about-grid">
+                <div class="about-images-col">
+                    <div class="about-img-frame">
+                        <img src="care.jpeg" alt="Médecin à l'écoute d'un patient à la Clinique Effort" class="about-img-front">
+                        <div class="about-experience-badge">
+                            <span class="exp-num">30+</span>
+                            <span class="exp-text">Ans d'engagement médical au service de la population</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-text-col">
+                    <span class="section-badge">Notre Établissement</span>
+                    <h2 class="section-title">L'alliance de l'excellence médicale et de la bienveillance humaine</h2>
+                    <p class="about-lead">
+                        Depuis sa fondation, la Clinique Effort s'est donné pour mission d'offrir des soins hospitaliers d'une qualité irréprochable, accessibles à tous, sans dépassement d'honoraires abusif et dans le plus strict respect de la dignité humaine.
+                    </p>
+                    <p>
+                        Nos équipes médicales, soignantes et administratives travaillent en synergie continue pour concevoir des parcours de soins personnalisés, diminuant l'anxiété et favorisant un rétablissement rapide dans un environnement apaisant.
+                    </p>
+
+                    <div class="commitments-list">
+                        <div class="commitment-item">
+                            <div class="commit-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div>
+                                <h4>Engagement qualité & excellence médicale</h4>
+                                <p>Des soins de qualité, accessibles, dans le respect de chaque patient.</p>
+                            </div>
+                        </div>
+
+                        <div class="commitment-item">
+                            <div class="commit-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                            </div>
+                            <div>
+                                <h4>Temps d'attente maîtrisé & réactivité</h4>
+                                <p>Optimisation continue des circuits d'admission pour réduire vos délais de prise en charge.</p>
+                            </div>
+                        </div>
+
+                        <div class="commitment-item">
+                            <div class="commit-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            </div>
+                            <div>
+                                <h4>Données de santé hautement sécurisées</h4>
+                                <p>Vos données médicales sont strictement confidentielles, sécurisées et soumises au secret médical.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-action">
+                        <button class="btn btn-primary" onclick="openAppointmentModal()">Prendre un rendez-vous médical</button>
+                        <a href="#contact" class="btn btn-secondary">Découvrir nos accès</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="patient-guide-section" id="guide-patient">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge">Pratique & Utile</span>
+                    <h2 class="section-title">Guide Patient & Séjour Hospitalier</h2>
+                    <p class="section-description">
+                        Retrouvez toutes les informations pratiques pour organiser votre venue, préparer votre consultation ou rendre visite à un proche.
+                    </p>
+                </div>
+
+                <div class="guide-cards-grid">
+                    <!-- Carte 1 -->
+                    <div class="guide-card">
+                        <div class="guide-card-icon">📋</div>
+                        <h3>Préparer votre consultation</h3>
+                        <p>Pensez à apporter impérativement avec vous lors de votre arrivée au bureau des admissions :</p>
+                        <ul class="guide-list">
+                            <li>Votre carte CNSS, Mutuelles ou attestation d'assurance maladie</li>
+                            <li>Votre convention d'assurance ou carte de mutuelle</li>
+                            <li>Une pièce d'identité valide (CIN, Passeport, permis de conduire)</li>
+                            <li>Vos ordonnances récentes et derniers examens de santé</li>
+                        </ul>
+                    </div>
+
+                    <!-- Carte 2 -->
+                    <div class="guide-card">
+                        <div class="guide-card-icon">🕒</div>
+                        <h3>Horaires des Visites</h3>
+                        <p>Pour le confort et le repos de nos patients, nous vous prions de respecter les créneaux suivants :</p>
+                        <ul class="guide-list">
+                            <li><strong>Chambres classiques :</strong> Tous les jours de 13h00 à 20h00</li>
+                            <li><strong>Maternité :</strong> Co-parent 24h/24, visiteurs de 14h00 à 19h00</li>
+                            <li><strong>Réanimation & Soins Continus :</strong> 14h00 à 19h00 (limité à 2 proches)</li>
+                            <li>Enfants de moins de 12 ans non admis en réanimation</li>
+                        </ul>
+                    </div>
+
+                    <!-- Carte 3 -->
+                    <div class="guide-card">
+                        <div class="guide-card-icon">🛏️</div>
+                        <h3>Chambres & Confort du Séjour</h3>
+                        <p>Des prestations hôtelières soignées pour garantir votre bien-être pendant l'hospitalisation :</p>
+                        <ul class="guide-list">
+                            <li>Chambres particulières avec salle d'eau privative</li>
+                            <li>Connexion Wi-Fi haut débit sécurisée offerte</li>
+                            <li>Repas adaptés conçus avec nos diététiciens nutritionnistes</li>
+                            <li>Lit accompagnant disponible sur demande</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOIRE AUX QUESTIONS (FAQ) -->
+        <section class="faq-section" id="faq">
+            <div class="container faq-container">
+                <div class="section-header text-center">
+                    <span class="section-badge">Questions Fréquentes</span>
+                    <h2 class="section-title">Tout ce que vous devez savoir</h2>
+                    <p class="section-description">Les réponses à vos interrogations les plus fréquentes pour un parcours sans stress.</p>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Comment se déroule l'admission au service des urgences ?</span>
+                            <span class="accordion-arrow">&plus;</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Dès votre arrivée, une infirmière ou un infirmier de triage évalue immédiatement le degré d'urgence médicale selon les protocoles de triage médicaux. Les urgences vitales sont prises en charge instantanément. Pour les cas moins graves, la prise en charge se fait dans l'ordre de priorité clinique.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>La Clinique Effort travaille-t-elle avec les assurances ?</span>
+                            <span class="accordion-arrow">&plus;</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Oui, la Clinique Effort accepte les assurances maladie et conventions médicales. Renseignez-vous auprès du bureau des admissions pour votre couverture.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Comment obtenir les résultats de mes examens ou imageries médicales ?</span>
+                            <span class="accordion-arrow">&plus;</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Les comptes-rendus et clichés d'imagerie (IRM, Scanner, Radiographie) vous sont remis le jour même ou sont accessibles directement en ligne sur votre portail patient sécurisé grâce à vos identifiants remis lors de l'examen.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Comment prendre un rendez-vous pour un enfant ?</span>
+                            <span class="accordion-arrow">&plus;</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Vous pouvez réserver directement en ligne en cliquant sur le bouton « Prendre rendez-vous » en sélectionnant la spécialité « Maternité & Pédiatrie », ou contacter directement le secrétariat pédiatrique au 0819 456 654.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Y a-t-il un parking disponible sur place ?</span>
+                            <span class="accordion-arrow">&plus;</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Oui, un parking sécurisé de 3 places est mis à votre disposition avec accès direct aux ascenseurs des consultations et de La Clinique. Les 2 premières heures sont offertes pour toute consultation médicale.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCES, LOCALISATION ET CONTACT -->
+        <section class="contact-section" id="contact">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge">Nous Rejoindre</span>
+                    <h2 class="section-title">Localisation & Contact Pratique</h2>
+                    <p class="section-description">Situé à Kinshasa, au cœur de la ville, facilement accessible en taxi, bus ou moto-taxi.</p>
+                </div>
+
+                <div class="contact-grid">
+                    <!-- Informations d'accès -->
+                    <div class="contact-info-card">
+                        <div class="location-visual">
+                            <img src="location.jpeg" alt="Plan d'accès à la Clinique Effort" class="location-img">
+                            <div class="location-floating-label">
+                                <strong>Clinique Effort</strong>
+                                <span>012, Kinshasa, RDC</span>
+                            </div>
+                        </div>
+
+                        <div class="access-modes">
+                            <div class="access-item">
+                                <div class="access-icon">🛺</div>
+                                <div>
+                                    <strong>En Taxi-moto (Wewa)</strong>
+                                    <p>Disponibles à proximité immédiate, dépose directement à l'entrée principale.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚌</div>
+                                <div>
+                                    <strong>En Bus (Transco)</strong>
+                                    <p>Arrêt de bus sur l'axe principal à quelques mètres de la Clinique Effort.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚗</div>
+                                <div>
+                                    <strong>En Voiture</strong>
+                                    <p>Parking sur place. Code GPS : J9H4+9Q Kinshasa.</p>
+                                </div>
+                            </div>
+                            <div class="access-item">
+                                <div class="access-icon">🚑</div>
+                                <div>
+                                    <strong>Accès Urgences 24/7</strong>
+                                    <p>Entrée dédiée accessible à toute heure. Appelez le 0819 456 654 avant votre arrivée.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- fin contact-info-card -->
+
+                    <!-- Formulaire de contact / message -->
+                    <div class="contact-form-card">
+                        <h3>Nous envoyer un message</h3>
+                        <p class="form-subtext">Pour toute demande d'information administrative ou médicale non urgente.</p>
+                        
+                        <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contactNom">Nom & Prénom *</label>
+                                    <input type="text" id="contactNom" required placeholder="Ex: Alfred">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactTel">Téléphone *</label>
+                                    <input type="tel" id="contactTel" required placeholder="+243 123 456 789">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactEmail">Adresse email *</label>
+                                <input type="email" id="contactEmail" required placeholder="effortclinique@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactService">Service concerné</label>
+                                <select id="contactService">
+                                    <option value="admissions">Bureau des admissions & facturation</option>
+                                    <option value="medical">Renseignements médicaux généraux</option>
+                                    <option value="imagerie">Secrétariat d'imagerie (IRM/Scanner)</option>
+                                    <option value="reclamation">Relations usagers & réclamations</option>
+                                    <option value="autre">Autre demande</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactMessage">Votre message *</label>
+                                <textarea id="contactMessage" rows="4" required placeholder="Précisez votre demande..."></textarea>
+                            </div>
+
+                            <div class="form-consent">
+                                <input type="checkbox" id="contactConsent" required>
+                                <label for="contactConsent">J'accepte que mes données soient traitées par La Clinique dans le cadre strict de ma demande.</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Envoyer mon message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER OFFICIEL -->
+    <footer class="main-footer">
+        <div class="container footer-top">
+            <div class="footer-col brand-col">
+                <div class="footer-logo">
+                    <div class="logo-icon-small">   
+                       <a href="#accueil" class="logo-link">
+                          <img src="cmef-embleme.svg" alt="Logo de la Clinique Effort" class="logo-img" width="36" height="36">
+                       </a>
+                    </div>
+                    <span class="footer-brand-title">Clinique Effort</span>
+                </div>
+                <p class="footer-tagline">
+                    Votre santé, notre priorité absolue. Établissement de soins de référence engagé pour la qualité, la sécurité et le respect des patients.
+                </p>
+                <div class="certif-badges">
+                    <span class="certif-tag">Certifié Ouvert 24h/24</span>
+                    <span class="certif-tag">Kinshasa, RDC</span>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Numéros d'Urgence</h4>
+                <ul class="footer-links-list">
+                    <li><strong>Urgences 24h/24 &amp; 7j/7 :</strong> 0819 456 654</li>
+                    <li><strong>Standard Clinique :</strong> <a href="tel:0819456654">0819 456 654</a></li>
+                    <li><strong>Urgences Effort 24/7 :</strong> <a href="tel:0819456654" class="footer-urg-highlight">0819 456 654</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Pôles de Soins</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#services">Urgences médico-chirurgicales</a></li>
+                    <li><a href="#services">Cardiologie & Vasculaire</a></li>
+                    <li><a href="#services">Chirurgie Ambulatoire</a></li>
+                    <li><a href="#services">Maternité & Pédiatrie</a></li>
+                    <li><a href="#services">Imagerie (IRM & Scanner)</a></li>
+                    <li><a href="#services">Laboratoire d'analyses</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Liens Utiles</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#guide-patient">Préparer mon admission</a></li>
+                    <li><a href="#guide-patient">Horaires des visites</a></li>
+                    <li><a href="#faq">Foire aux questions</a></li>
+                    <li><a href="#" onclick="openAppointmentModal(); return false;">Prendre un rendez-vous</a></li>
+                    <li><a href="#contact">Plan d'accès et transports</a></li>
+                    <li><a href="https://omedjialfred99-create.github.io" target="_blank" rel="noopener">Notre site officiel</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-content">
+                <p>© 2026 Clinique Effort - Kinshasa, RDC. Tous droits réservés.</p>
+                <div class="footer-legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Protection des Données (RGPD Santé)</a>
+                    <a href="#">Accessibilité</a>
+                    <a href="#">Gestion des Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="appointmentModal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-badge">Consultation Médicale</span>
+                    <h3 id="modalTitle">Prendre un rendez-vous en ligne</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeAppointmentModal()" aria-label="Fermer la fenêtre">&times;</button>
+            </div>
+
+            <form id="rdvForm" onsubmit="handleAppointmentSubmit(event)" class="modal-form">
+                <div class="form-step-indicator">
+                    <span class="step-bullet active">1. Service & Médecin</span>
+                    <span class="step-divider"></span>
+                    <span class="step-bullet active">2. Date & Créneau</span>
+                    <span class="step-divider"></span>
+                    <span class="step-bullet active">3. Coordonnées</span>
+                </div>
+
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="rdvSpecialite">Spécialité médicale *</label>
+                        <select id="rdvSpecialite" required onchange="updateDoctorsList()">
+                            <option value="">Sélectionnez un service...</option>
+                            <option value="Urgences & Réanimation">Urgences & Réanimation</option>
+                            <option value="Cardiologie">Cardiologie & Vasculaire</option>
+                            <option value="Chirurgie Ambulatoire">Chirurgie Générale & Ambulatoire</option>
+                            <option value="Maternité & Pédiatrie">Maternité & Pédiatrie</option>
+                            <option value="Imagerie Médicale (IRM/Scanner)">Imagerie Médicale (IRM / Scanner)</option>
+                            <option value="Laboratoire de Biologie">Laboratoire de Biologie</option>
+                            <option value="Médecine Générale">Consultation de Médecine Générale</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvDocteur">Praticien référent</label>
+                        <select id="rdvDocteur" required>
+                            <option value="">Les médecins seront chargés depuis la base de données...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvDate">Date souhaitée *</label>
+                        <input type="date" id="rdvDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvType">Type de consultation *</label>
+                        <select id="rdvType" required>
+                            <option value="presentiel">En présentiel à la Clinique</option>
+                            <option value="teleconsultation">Téléconsultation vidéo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="slot-selection-section">
+                    <label class="slot-label">Créneaux horaires disponibles pour cette date :</label>
+                    <div class="slots-container" id="slotsContainer" aria-live="polite">
+                        <p class="slots-message">Choisissez un médecin et une date pour afficher ses créneaux.</p>
+                    </div>
+                    <input type="hidden" id="selectedTimeSlot" value="">
+                </div>
+
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="rdvNom">Nom de famille *</label>
+                        <input type="text" id="rdvNom" required placeholder="Ex: Alfred">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdvPrenom">Prénom *</label>
+                        <input type="text" id="rdvPrenom" required placeholder="Ex: Marie">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdvEmail">Adresse email *</label>
+                        <input type="email" id="rdvEmail" required placeholder="K.carine@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdvTel">Numéro de téléphone *</label>
+                        <input type="tel" id="rdvTel" required placeholder="+243 12 345 678">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rdvMotif">Motif de consultation (optionnel)</label>
+                    <input type="text" id="rdvMotif" placeholder="Ex: Bilan de contrôle, suivi régulier, douleurs...">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAppointmentModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Confirmer mon rendez-vous
+                    </button>
+                </div>
+            </form>
+
+            <div id="rdvSuccessScreen" class="rdv-success-screen" style="display: none;">
+                <div class="success-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3>Demande de rendez-vous enregistrée</h3>
+                <p>Votre rendez-vous est enregistré dans ce récapitulatif. Conservez votre numéro de dossier.</p>
+                
+                <div class="recap-card" id="recapCard">
+                </div>
+
+                <div class="recap-actions">
+                    <button class="btn btn-primary" onclick="closeAppointmentModal()">Fermer et retourner au site</button>
+                    <button class="btn btn-secondary" onclick="window.print()">Imprimer la convocation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside class="floating-emergency-container" aria-label="Bouton d'urgence rapide">
+        <a href="tel:0819456654" class="floating-urg-btn" title="Appeler les urgences">
+            <span class="floating-pulse"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span class="floating-urg-text">Urgence 24/7</span>
+        </a>
+        <button class="back-to-top" id="backToTopBtn" aria-label="Retour en haut de page" onclick="scrollToTop()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+    </aside>
+
+    <div id="toastNotification" class="toast-notification" aria-live="polite"></div>
+
+    <div id="cookieBanner" class="cookie-banner" role="dialog" aria-label="Consentement aux cookies" aria-modal="true">
+        <div class="cookie-banner-inner">
+            <div class="cookie-icon-wrap">🍪</div>
+            <div class="cookie-text">
+                <h4>Respect de votre vie privée</h4>
+                <p>
+                    Ce site utilise des cookies pour améliorer votre expérience (navigation, formulaires, analytics).
+                    Vos données ne sont jamais revendues. En cliquant sur <strong>« Accepter »</strong>, vous consentez
+                    à leur utilisation conformément à notre politique de confidentialité.
+                </p>
+            </div>
+            <div class="cookie-actions">
+                <button class="btn btn-secondary cookie-refuse" onclick="refuseCookies()">Refuser</button>
+                <button class="btn btn-primary cookie-accept" onclick="acceptCookies()">Accepter</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
