@@ -31,6 +31,114 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.get('/verify-token', async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+      return res.status(400).json({ valid: false, error: 'Format de lien invalide.' });
+    }
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const { rows } = await db.query(
+      `SELECT t.id, p.id AS personnel_id, p.nom, p.prenom, p.email, p.role, p.must_change_password
+       FROM password_reset_tokens t
+       JOIN personnel p ON p.id = t.personnel_id
+       WHERE t.token_hash = $1
+         AND t.used_at IS NULL
+         AND t.expires_at > NOW()
+         AND p.actif = TRUE`,
+      [tokenHash]
+    );
+    if (!rows.length) {
+      return res.status(400).json({
+        valid: false,
+        error: 'Ce lien d’activation est invalide, a déjà été utilisé ou a expiré.'
+      });
+    }
+    const user = rows[0];
+    res.json({
+      valid: true,
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      role: user.role,
+      isActivation: user.must_change_password === true || Number(user.must_change_password) === 1
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/complete-activation', async (req, res, next) => {
+  let connection;
+  let transactionOpen = false;
+  try {
+    const { token, password } = req.body;
+    if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+      return res.status(400).json({ error: 'Lien d’activation manquant ou invalide.' });
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Le mot de passe doit comporter au moins 8 caractères.' });
+    }
+
+    connection = await db.connect();
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    await connection.query('BEGIN');
+    transactionOpen = true;
+
+    const { rows } = await connection.query(
+      `SELECT t.id AS token_id, p.id, p.nom, p.prenom, p.email, p.role, p.medecin_id
+       FROM password_reset_tokens t
+       JOIN personnel p ON p.id = t.personnel_id
+       WHERE t.token_hash = $1
+         AND t.used_at IS NULL
+         AND t.expires_at > NOW()
+         AND p.actif = TRUE
+       FOR UPDATE`,
+      [tokenHash]
+    );
+
+    if (!rows.length) {
+      await connection.query('ROLLBACK');
+      transactionOpen = false;
+      return res.status(400).json({ error: 'Ce lien d’activation est invalide, déjà utilisé ou expiré.' });
+    }
+
+    const user = rows[0];
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await connection.query(
+      'UPDATE personnel SET password_hash = $1, must_change_password = FALSE WHERE id = $2',
+      [passwordHash, user.id]
+    );
+
+    await connection.query(
+      'UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1',
+      [user.token_id]
+    );
+
+    await connection.query('COMMIT');
+    transactionOpen = false;
+
+    const accessToken = jwt.sign(
+      { id: user.id, role: user.role, medecin_id: user.medecin_id },
+      process.env.JWT_SECRET,
+      { expiresIn: '12h' }
+    );
+
+    res.json({
+      token: accessToken,
+      role: user.role,
+      nom: `${user.nom} ${user.prenom}`,
+      message: 'Votre mot de passe a été défini avec succès. Bienvenue dans votre espace !'
+    });
+  } catch (err) {
+    if (transactionOpen) await connection.query('ROLLBACK');
+    next(err);
+  } finally {
+    connection?.release();
+  }
+});
+
 router.post('/activate', async (req, res, next) => {
   let connection;
   let transactionOpen = false;

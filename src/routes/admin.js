@@ -49,6 +49,62 @@ router.get('/medecins-sans-compte', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post('/medecins', async (req, res, next) => {
+  const client = await db.connect();
+  let transactionOpen = false;
+  try {
+    const { nom, prenom, specialite_id, telephone, email } = req.body;
+    if (!nom?.trim() || !prenom?.trim() || !specialite_id) {
+      return res.status(400).json({ error: 'Nom, prénom et spécialité requis' });
+    }
+
+    await client.query('BEGIN');
+    transactionOpen = true;
+
+    const { rows: doctors } = await client.query(
+      'INSERT INTO medecins (nom, prenom, specialite_id, telephone) VALUES ($1, $2, $3, $4) RETURNING id',
+      [nom.trim(), prenom.trim(), specialite_id, telephone?.trim() || null]
+    );
+    const doctorId = doctors[0].id;
+
+    let invitationUrl = null;
+    if (email?.trim()) {
+      const cleanEmail = email.trim().toLowerCase();
+      const token = crypto.randomBytes(32).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const hash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+
+      const { rows: personnel } = await client.query(
+        `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
+         VALUES ($1, $2, $3, $4, TRUE, 'medecin', $5) RETURNING id`,
+        [nom.trim(), prenom.trim(), cleanEmail, hash, doctorId]
+      );
+      await client.query(
+        `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
+         VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
+        [personnel[0].id, tokenHash]
+      );
+      const baseUrl = getAppUrl();
+      invitationUrl = `${baseUrl}/admin.html?activation=${token}`;
+    }
+
+    await client.query('COMMIT');
+    transactionOpen = false;
+
+    res.status(201).json({
+      id: doctorId,
+      message: invitationUrl ? 'Médecin et accès créés avec succès.' : 'Médecin créé avec succès.',
+      lien_invitation: invitationUrl
+    });
+  } catch (err) {
+    if (transactionOpen) await client.query('ROLLBACK');
+    if (err.code === '23505') return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
 router.post('/medecins/:id/invitation', async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -64,7 +120,7 @@ router.post('/medecins/:id/invitation', async (req, res, next) => {
     const { rows: personnel } = await db.query(
       `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
        VALUES ($1, $2, $3, $4, TRUE, 'medecin', $5) RETURNING id`,
-      [doctors[0].nom, doctors[0].prenom, email, hash, doctors[0].id]
+      [doctors[0].nom, doctors[0].prenom, email.trim().toLowerCase(), hash, doctors[0].id]
     );
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
@@ -99,7 +155,7 @@ router.post('/comptes', async (req, res, next) => {
     const { rows: users } = await db.query(
       `INSERT INTO personnel (nom, prenom, email, password_hash, must_change_password, role, medecin_id)
        VALUES ($1, $2, $3, $4, TRUE, $5, $6) RETURNING id`,
-      [nom, prenom, email, hash, role, role === 'medecin' ? medecin_id : null]
+      [nom.trim(), prenom.trim(), email.trim().toLowerCase(), hash, role, role === 'medecin' ? medecin_id : null]
     );
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
@@ -120,7 +176,7 @@ router.post('/comptes', async (req, res, next) => {
 router.post('/comptes/:id/reset-password', async (req, res, next) => {
   try {
     const { rows: users } = await db.query(
-      'SELECT id FROM personnel WHERE id=$1 AND role IN ($2, $3)',
+      'SELECT id, role, must_change_password FROM personnel WHERE id=$1 AND role IN ($2, $3)',
       [req.params.id, 'medecin', 'secretaire']
     );
     if (!users.length) return res.status(404).json({ error: 'Compte médecin ou secrétaire introuvable' });
@@ -135,12 +191,12 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
     await db.query('UPDATE personnel SET must_change_password=TRUE WHERE id=$1', [req.params.id]);
     await db.query(
       `INSERT INTO password_reset_tokens (personnel_id, token_hash, expires_at)
-       VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
+       VALUES ($1, $2, NOW() + INTERVAL '72 hours')`,
       [req.params.id, tokenHash]
     );
     const baseUrl = getAppUrl();
     res.json({
-      message: 'Lien de récupération créé. Il expire dans 1 heure.',
+      message: 'Nouveau lien d’activation créé. Il expire dans 72 heures.',
       lien_recuperation: `${baseUrl}/admin.html?activation=${token}`
     });
   } catch (err) { next(err); }
@@ -148,6 +204,9 @@ router.post('/comptes/:id/reset-password', async (req, res, next) => {
 
 router.patch('/comptes/:id/toggle', async (req, res, next) => {
   try {
+    if (Number(req.user.id) === Number(req.params.id)) {
+      return res.status(400).json({ error: 'Vous ne pouvez pas désactiver votre propre compte administrateur.' });
+    }
     await db.query('UPDATE personnel SET actif=NOT actif WHERE id=$1', [req.params.id]);
     res.json({ message: 'Statut du compte modifié' });
   } catch (err) { next(err); }
