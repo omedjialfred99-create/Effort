@@ -40,6 +40,87 @@ router.get('/medecins-sans-compte', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/medecins-liste', async (req, res, next) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT m.id, m.nom, m.prenom, m.telephone, m.actif, s.nom AS specialite,
+        p.id AS personnel_id, p.email AS personnel_email, p.actif AS compte_actif,
+        COUNT(r.id) AS total_rdv
+      FROM medecins m
+      JOIN specialites s ON s.id = m.specialite_id
+      LEFT JOIN personnel p ON p.medecin_id = m.id
+      LEFT JOIN rendez_vous r ON r.medecin_id = m.id
+      GROUP BY m.id, m.nom, m.prenom, m.telephone, m.actif, s.nom, p.id, p.email, p.actif
+      ORDER BY m.actif DESC, m.nom ASC
+    `);
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.patch('/medecins/:id/toggle', async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      'UPDATE medecins SET actif = NOT actif WHERE id = $1 RETURNING id, nom, prenom, actif',
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Médecin introuvable' });
+    await db.query('UPDATE personnel SET actif = $1 WHERE medecin_id = $2', [rows[0].actif, req.params.id]);
+    res.json({
+      actif: rows[0].actif,
+      message: `Dr ${rows[0].prenom} ${rows[0].nom} est maintenant ${rows[0].actif ? 'actif' : 'inactif'}.`
+    });
+  } catch (err) { next(err); }
+});
+
+router.delete('/medecins/:id', async (req, res, next) => {
+  const client = await db.connect();
+  let transactionOpen = false;
+  try {
+    const doctorId = req.params.id;
+    const { rows: docs } = await client.query('SELECT nom, prenom FROM medecins WHERE id = $1', [doctorId]);
+    if (!docs.length) return res.status(404).json({ error: 'Médecin introuvable' });
+
+    const { rows: rdv } = await client.query('SELECT count(*) FROM rendez_vous WHERE medecin_id = $1', [doctorId]);
+    const rdvCount = Number(rdv[0].count);
+
+    await client.query('BEGIN');
+    transactionOpen = true;
+
+    if (rdvCount > 0) {
+      await client.query('UPDATE medecins SET actif = FALSE WHERE id = $1', [doctorId]);
+      await client.query('UPDATE personnel SET actif = FALSE WHERE medecin_id = $1', [doctorId]);
+      await client.query('COMMIT');
+      transactionOpen = false;
+      return res.json({
+        action: 'desactive',
+        message: `Le Dr ${docs[0].prenom} ${docs[0].nom} a ${rdvCount} rendez-vous associés. Il a été désactivé du site sans supprimer l'historique des consultations.`
+      });
+    }
+
+    await client.query(`
+      DELETE FROM password_reset_tokens WHERE personnel_id IN (
+        SELECT id FROM personnel WHERE medecin_id = $1
+      )
+    `, [doctorId]);
+    await client.query('DELETE FROM personnel WHERE medecin_id = $1', [doctorId]);
+    await client.query('DELETE FROM disponibilites WHERE medecin_id = $1', [doctorId]);
+    await client.query('DELETE FROM medecins WHERE id = $1', [doctorId]);
+
+    await client.query('COMMIT');
+    transactionOpen = false;
+
+    res.json({
+      action: 'supprime',
+      message: `Le Dr ${docs[0].prenom} ${docs[0].nom} a été définitivement supprimé.`
+    });
+  } catch (err) {
+    if (transactionOpen) await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
 router.post('/medecins', async (req, res, next) => {
   const client = await db.connect();
   let transactionOpen = false;

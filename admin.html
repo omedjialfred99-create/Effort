@@ -150,6 +150,34 @@
                             <div id="doctors-without-account"></div>
                         </section>
                     </div>
+
+                    <section class="management-card" style="margin-top: 24px;">
+                        <div class="toolbar" style="margin-bottom: 14px;">
+                            <div>
+                                <h3>Registre & Gestion des Médecins</h3>
+                                <p class="muted">Activez, désactivez ou supprimez les praticiens de la clinique.</p>
+                            </div>
+                            <button id="btn-refresh-meds" type="button" class="secondary">Actualiser</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Médecin</th>
+                                        <th>Spécialité</th>
+                                        <th>Téléphone</th>
+                                        <th>RDV</th>
+                                        <th>Statut</th>
+                                        <th>Compte</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doctors-registry-body">
+                                    <tr><td colspan="7" class="muted" style="text-align:center;padding:20px;">Chargement des médecins...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
                 </div>
 
                 <!-- ONGLET 2 : PERSONNEL & COMPTES -->
@@ -426,9 +454,10 @@
         });
 
         async function loadAdmin() {
-            const [stats, specialties, doctors, accounts, orphanDoctors] = await Promise.all([
+            const [stats, specialties, doctors, accounts, orphanDoctors, allMeds] = await Promise.all([
                 api('/api/admin/stats'), api('/api/specialites'), api('/api/medecins'),
-                api('/api/admin/comptes'), api('/api/admin/medecins-sans-compte')
+                api('/api/admin/comptes'), api('/api/admin/medecins-sans-compte'),
+                api('/api/admin/medecins-liste')
             ]);
             
             // Stats
@@ -472,6 +501,29 @@
                     <td class="actions">${actionButtons}</td>
                 </tr>`;
             }).join('') || '<tr><td colspan="4">Aucun compte trouvé.</td></tr>';
+
+            
+            // Tableau du registre des médecins
+            $('doctors-registry-body').innerHTML = allMeds.map(m => `
+                <tr>
+                    <td><strong>Dr ${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</strong></td>
+                    <td>${escapeHtml(m.specialite)}</td>
+                    <td>${escapeHtml(m.telephone || '-')}</td>
+                    <td><span class="badge confirmed">${m.total_rdv} RDV</span></td>
+                    <td><span class="badge ${m.actif ? 'confirmed' : 'cancelled'}">${m.actif ? 'Actif' : 'Inactif'}</span></td>
+                    <td>${m.personnel_email ? `<small>${escapeHtml(m.personnel_email)}</small>` : '<em class="muted" style="font-size:0.85rem;">Sans compte</em>'}</td>
+                    <td>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button type="button" class="table-action" data-toggle-medecin="${m.id}">
+                                ${m.actif ? 'Désactiver' : 'Activer'}
+                            </button>
+                            <button type="button" class="table-action danger" data-delete-medecin="${m.id}" data-medecin-name="Dr ${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}">
+                                Supprimer
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;">Aucun médecin enregistré.</td></tr>';
 
             // Médecins sans compte
             $('doctors-without-account').innerHTML = orphanDoctors.length ? orphanDoctors.map(item => `
@@ -674,6 +726,29 @@
 
         // Actions globales (tableau des comptes, rendez-vous)
         document.addEventListener('click', async (event) => {
+            const btnToggleMed = event.target.closest('[data-toggle-medecin]');
+            if (btnToggleMed) {
+                try {
+                    const res = await api(`/api/admin/medecins/${btnToggleMed.dataset.toggleMedecin}/toggle`, { method: 'PATCH' });
+                    setMessage(res.message, false);
+                    await loadAdmin();
+                } catch (err) { setMessage(err.message); }
+                return;
+            }
+
+            const btnDeleteMed = event.target.closest('[data-delete-medecin]');
+            if (btnDeleteMed) {
+                const name = btnDeleteMed.dataset.medecinName || 'ce médecin';
+                if (confirm(`Voulez-vous vraiment supprimer ${name} ?\n\nNote : S'il possède des rendez-vous passés, il sera désactivé sans effacer l'historique médical. S'il n'en a pas, il sera supprimé définitivement.`)) {
+                    try {
+                        const res = await api(`/api/admin/medecins/${btnDeleteMed.dataset.deleteMedecin}`, { method: 'DELETE' });
+                        setMessage(res.message, false);
+                        await loadAdmin();
+                    } catch (err) { setMessage(err.message); }
+                }
+                return;
+            }
+
             const button = event.target.closest('[data-confirm],[data-present],[data-toggle-account],[data-finish],[data-activation-reset]');
             if (!button) return;
             try {
