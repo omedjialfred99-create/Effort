@@ -68,7 +68,10 @@ router.post('/rendez-vous', async (req, res, next) => {
   let conn;
   let transactionOpen = false;
   try {
-    const { nom, prenom, telephone, email, medecin_id, date_heure, motif } = req.body;
+    const {
+      nom, prenom, telephone, email, medecin_id, date_heure, motif,
+      civilite, genre, date_naissance, ville, rdv_mode, heure_pref, categorie
+    } = req.body;
     if (!nom || !prenom || !telephone || !medecin_id || !date_heure) {
       return res.status(400).json({ error: 'Champs obligatoires manquants' });
     }
@@ -94,24 +97,46 @@ router.post('/rendez-vous', async (req, res, next) => {
       const end = endHour * 60 + endMinute;
       return requestedMinutes >= start && requestedMinutes + 30 <= end && (requestedMinutes - start) % 30 === 0;
     });
-    if (!slotIsAvailableBySchedule) {
+    if (!slotIsAvailableBySchedule && rdv_mode !== 'rappel') {
       return res.status(409).json({ error: 'Ce médecin n’est pas disponible sur ce créneau.' });
     }
+
+    // Enrichissement des détails médicaux façon HJ Hospitals
+    const motifParts = [];
+    if (civilite) motifParts.push(`[Civilité: ${civilite}]`);
+    if (genre) motifParts.push(`[Genre: ${genre}]`);
+    if (ville) motifParts.push(`[Commune: ${ville}]`);
+    if (categorie && categorie !== 'consultation') {
+      const catLabels = {
+        bilan_general: 'Bilan de Santé Préventif (Check-up)',
+        bilan_cardio: 'Bilan Cardiovasculaire',
+        bilan_diabete: 'Bilan Métabolique & Diabète',
+        bilan_maternite: 'Bilan Maternité & Pédiatrie'
+      };
+      motifParts.push(`[Forfait: ${catLabels[categorie] || categorie}]`);
+    }
+    if (rdv_mode === 'rappel') {
+      motifParts.push(`[DEMANDE DE RAPPEL TÉLÉPHONIQUE - Heure souhaitée: ${heure_pref || 'Dès que possible'}]`);
+    }
+    if (motif) motifParts.push(motif);
+    const finalMotif = motifParts.join(' ');
+
     await conn.query('BEGIN');
     transactionOpen = true;
     const { rows: patients } = await conn.query(
-      `INSERT INTO patients (nom, prenom, telephone, email) VALUES ($1, $2, $3, $4)
+      `INSERT INTO patients (nom, prenom, telephone, email, date_naissance) VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (telephone) DO UPDATE SET
          nom=EXCLUDED.nom, prenom=EXCLUDED.prenom,
-         email=COALESCE(EXCLUDED.email, patients.email)
+         email=COALESCE(EXCLUDED.email, patients.email),
+         date_naissance=COALESCE(EXCLUDED.date_naissance, patients.date_naissance)
        RETURNING id`,
-      [nom, prenom, telephone, email || null]
+      [nom, prenom, telephone, email || null, date_naissance || null]
     );
     const code = crypto.randomBytes(3).toString('hex').toUpperCase();
     await conn.query(
       `INSERT INTO rendez_vous (code, patient_id, medecin_id, date_heure, motif, origine)
        VALUES ($1, $2, $3, $4, $5, 'en_ligne')`,
-      [code, patients[0].id, medecin_id, normalizedDateTime, motif || null]
+      [code, patients[0].id, medecin_id, normalizedDateTime, finalMotif || null]
     );
     await conn.query('COMMIT');
     transactionOpen = false;
@@ -125,7 +150,7 @@ router.post('/rendez-vous', async (req, res, next) => {
         );
         await appointmentConfirmationEmail({
           recipient: email,
-          patientName: `${prenom} ${nom}`,
+          patientName: `${civilite ? civilite + ' ' : ''}${prenom} ${nom}`,
           doctorName: doctorRows[0] ? `${doctorRows[0].prenom} ${doctorRows[0].nom}` : 'votre praticien',
           date: new Date(date_heure).toLocaleString('fr-FR'),
           code
@@ -138,9 +163,11 @@ router.post('/rendez-vous', async (req, res, next) => {
     }
     res.status(201).json({
       code,
-      message: emailSent
-        ? 'Rendez-vous enregistré. Un email de confirmation a été envoyé.'
-        : 'Rendez-vous enregistré. Conservez ce code.',
+      message: rdv_mode === 'rappel'
+        ? 'Votre demande de rappel a bien été transmise à notre secrétariat médical.'
+        : (emailSent
+            ? 'Rendez-vous enregistré. Un email de confirmation a été envoyé.'
+            : 'Rendez-vous enregistré. Conservez ce code.'),
       email_sent: emailSent,
       email_warning: emailWarning
     });

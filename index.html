@@ -757,97 +757,218 @@
     </footer>
 
     <div class="modal-overlay" id="appointmentModal" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-card modal-card-extended" role="dialog" aria-labelledby="modalTitle">
             <div class="modal-header">
                 <div>
-                    <span class="modal-badge">Consultation Médicale</span>
-                    <h3 id="modalTitle">Prendre un rendez-vous en ligne</h3>
+                    <span class="modal-badge">Service d'Admissions • Clinique Effort</span>
+                    <h3 id="modalTitle">Prendre un rendez-vous / Bilan de santé</h3>
                 </div>
                 <button class="modal-close-btn" onclick="closeAppointmentModal()" aria-label="Fermer la fenêtre">&times;</button>
             </div>
 
+            <!-- Bandeau d'assistance rapide façon HJ Hospitals -->
+            <div class="rdv-callcenter-banner">
+                <div class="banner-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
+                <div class="banner-text">
+                    <strong>Besoin d'assistance pour votre réservation ?</strong>
+                    <div>Notre centre d'accueil est joignable au <a href="tel:0819456654">0819 456 654</a> ou par WhatsApp pour vous orienter.</div>
+                </div>
+            </div>
+
             <form id="rdvForm" onsubmit="handleAppointmentSubmit(event)" class="modal-form">
                 <div class="form-step-indicator">
-                    <span class="step-bullet active">1. Service & Médecin</span>
+                    <span class="step-bullet active">1. Prestation & Service</span>
                     <span class="step-divider"></span>
-                    <span class="step-bullet active">2. Date & Créneau</span>
+                    <span class="step-bullet active">2. Dossier Patient</span>
                     <span class="step-divider"></span>
-                    <span class="step-bullet active">3. Coordonnées</span>
+                    <span class="step-bullet active">3. Date & Confirmation</span>
+                </div>
+
+                <!-- SECTION 1 : SERVICE OU BILAN -->
+                <div class="form-section-title">
+                    <span class="section-num">1</span>
+                    <h4>Prestation médicale & Praticien</h4>
                 </div>
 
                 <div class="modal-grid">
                     <div class="form-group">
+                        <label for="rdvCategorie">Type de consultation / Forfait *</label>
+                        <select id="rdvCategorie" onchange="handleCategorieChange()">
+                            <option value="consultation">Consultation Médicale Spécialisée</option>
+                            <option value="bilan_general">Bilan de Santé Préventif (Check-up Complet)</option>
+                            <option value="bilan_cardio">Bilan Cardiovasculaire & Hypertension</option>
+                            <option value="bilan_diabete">Bilan Métabolique & Dépistage Diabète</option>
+                            <option value="bilan_maternite">Bilan Maternité & Pédiatrie</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="rdvSpecialite">Spécialité médicale *</label>
-                        <select id="rdvSpecialite" required onchange="updateDoctorsList()">
-                            <option value="">Sélectionnez un service...</option>
-                            <option value="Urgences & Réanimation">Urgences & Réanimation</option>
+                        <select id="rdvSpecialite" required onchange="filterDoctorsBySpecialite()">
+                            <option value="">Toutes les spécialités...</option>
+                            <option value="Médecine Générale">Consultation de Médecine Générale</option>
                             <option value="Cardiologie">Cardiologie & Vasculaire</option>
                             <option value="Chirurgie Ambulatoire">Chirurgie Générale & Ambulatoire</option>
                             <option value="Maternité & Pédiatrie">Maternité & Pédiatrie</option>
                             <option value="Imagerie Médicale (IRM/Scanner)">Imagerie Médicale (IRM / Scanner)</option>
                             <option value="Laboratoire de Biologie">Laboratoire de Biologie</option>
-                            <option value="Médecine Générale">Consultation de Médecine Générale</option>
+                            <option value="Urgences & Réanimation">Urgences & Réanimation</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="rdvDocteur">Praticien référent</label>
+                        <label for="rdvDocteur">Praticien référent *</label>
                         <select id="rdvDocteur" required>
-                            <option value="">Les médecins seront chargés depuis la base de données...</option>
+                            <option value="">Chargement des praticiens...</option>
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="rdvType">Modalité de consultation *</label>
+                        <select id="rdvType" required>
+                            <option value="presentiel">En présentiel à la Clinique Effort</option>
+                            <option value="teleconsultation">Téléconsultation médicale</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SECTION 2 : DOSSIER PATIENT (STANDARD HOSPITALIER HJ) -->
+                <div class="form-section-title" style="margin-top: 18px;">
+                    <span class="section-num">2</span>
+                    <h4>Dossier d'admission du patient</h4>
+                </div>
+
+                <div class="form-row-custom">
+                    <div class="form-group" style="flex: 1.2;">
+                        <label>Civilité *</label>
+                        <div class="pill-group" id="civiliteGroup">
+                            <label class="pill-label"><input type="radio" name="rdvCivilite" value="M." checked> <span>M.</span></label>
+                            <label class="pill-label"><input type="radio" name="rdvCivilite" value="Mme"> <span>Mme</span></label>
+                            <label class="pill-label"><input type="radio" name="rdvCivilite" value="Mlle"> <span>Mlle</span></label>
+                            <label class="pill-label"><input type="radio" name="rdvCivilite" value="Enfant"> <span>Enfant</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label>Genre / Sexe *</label>
+                        <div class="pill-group" id="genreGroup">
+                            <label class="pill-label"><input type="radio" name="rdvGenre" value="Homme" checked> <span>Homme</span></label>
+                            <label class="pill-label"><input type="radio" name="rdvGenre" value="Femme"> <span>Femme</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="rdvNom">Nom de famille *</label>
+                        <input type="text" id="rdvNom" required placeholder="Ex: Mukendi">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdvPrenom">Prénom *</label>
+                        <input type="text" id="rdvPrenom" required placeholder="Ex: Patrick">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvDateNaissance">Date de naissance *</label>
+                        <input type="date" id="rdvDateNaissance" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvVille">Commune / Ville de résidence *</label>
+                        <select id="rdvVille" required>
+                            <option value="">Sélectionnez votre commune...</option>
+                            <option value="Gombe">Gombe</option>
+                            <option value="Limete">Limete</option>
+                            <option value="Ngaliema">Ngaliema</option>
+                            <option value="Kintambo">Kintambo</option>
+                            <option value="Lingwala">Lingwala</option>
+                            <option value="Barumbu">Barumbu</option>
+                            <option value="Kinshasa">Kinshasa (Commune)</option>
+                            <option value="Kasa-Vubu">Kasa-Vubu</option>
+                            <option value="Kalamu">Kalamu</option>
+                            <option value="Bandalungwa">Bandalungwa</option>
+                            <option value="Lemba">Lemba</option>
+                            <option value="Matete">Matete</option>
+                            <option value="Mont-Ngafula">Mont-Ngafula</option>
+                            <option value="Masina">Masina</option>
+                            <option value="Ndjili">Ndjili</option>
+                            <option value="Autre province / Extérieur">Autre province / Extérieur</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvTel">Téléphone mobile (Appel / WhatsApp) *</label>
+                        <input type="tel" id="rdvTel" required placeholder="+243 81 234 5678">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rdvEmail">Adresse email (optionnel)</label>
+                        <input type="email" id="rdvEmail" placeholder="patient@email.com">
+                    </div>
+                </div>
+
+                <!-- SECTION 3 : DATE & CONFIRMATION -->
+                <div class="form-section-title" style="margin-top: 18px;">
+                    <span class="section-num">3</span>
+                    <h4>Date & Mode de confirmation</h4>
+                </div>
+
+                <!-- Bascule Mode : Créneau direct VS Demande de rappel / Offline -->
+                <div class="booking-mode-toggle">
+                    <label class="mode-card active" id="modeCardSlot">
+                        <input type="radio" name="rdvMode" value="creneau" checked onchange="toggleBookingMode('creneau')">
+                        <div class="mode-card-content">
+                            <strong>⚡ Créneau précis en ligne</strong>
+                            <span>Choisissez la date et l'heure exacte du rendez-vous</span>
+                        </div>
+                    </label>
+
+                    <label class="mode-card" id="modeCardRappel">
+                        <input type="radio" name="rdvMode" value="rappel" onchange="toggleBookingMode('rappel')">
+                        <div class="mode-card-content">
+                            <strong>📞 Rappel par le secrétariat</strong>
+                            <span>Le secrétariat vous contacte rapidement pour planifier</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="modal-grid" style="margin-top: 10px;">
                     <div class="form-group">
                         <label for="rdvDate">Date souhaitée *</label>
                         <input type="date" id="rdvDate" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="rdvType">Type de consultation *</label>
-                        <select id="rdvType" required>
-                            <option value="presentiel">En présentiel à la Clinique</option>
-                            <option value="teleconsultation">Téléconsultation vidéo</option>
+                    <div class="form-group" id="rdvHeurePrefWrap" style="display: none;">
+                        <label for="rdvHeurePref">Moment préféré pour être rappelé</label>
+                        <select id="rdvHeurePref">
+                            <option value="Matinée (08h - 12h)">Matinée (08h - 12h)</option>
+                            <option value="Après-midi (12h - 16h)">Après-midi (12h - 16h)</option>
+                            <option value="Fin de journée (16h - 19h)">Fin de journée (16h - 19h)</option>
+                            <option value="Dès que possible">Dès que possible (Prioritaire)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="slot-selection-section">
-                    <label class="slot-label">Créneaux horaires disponibles pour cette date :</label>
+                <div class="slot-selection-section" id="slotSectionWrap">
+                    <label class="slot-label">Créneaux horaires disponibles :</label>
                     <div class="slots-container" id="slotsContainer" aria-live="polite">
                         <p class="slots-message">Choisissez un médecin et une date pour afficher ses créneaux.</p>
                     </div>
                     <input type="hidden" id="selectedTimeSlot" value="">
                 </div>
 
-                <div class="modal-grid">
-                    <div class="form-group">
-                        <label for="rdvNom">Nom de famille *</label>
-                        <input type="text" id="rdvNom" required placeholder="Ex: Alfred">
-                    </div>
-                    <div class="form-group">
-                        <label for="rdvPrenom">Prénom *</label>
-                        <input type="text" id="rdvPrenom" required placeholder="Ex: Marie">
-                    </div>
-                    <div class="form-group">
-                        <label for="rdvEmail">Adresse email *</label>
-                        <input type="email" id="rdvEmail" required placeholder="K.carine@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="rdvTel">Numéro de téléphone *</label>
-                        <input type="tel" id="rdvTel" required placeholder="+243 12 345 678">
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label for="rdvMotif">Motif de consultation (optionnel)</label>
+                    <label for="rdvMotif">Motif de consultation ou antécédents médicaux (optionnel)</label>
                     <input type="text" id="rdvMotif" placeholder="Ex: Bilan de contrôle, suivi régulier, douleurs...">
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeAppointmentModal()">Annuler</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="btnSubmitAppointment">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        Confirmer mon rendez-vous
+                        <span>Confirmer mon rendez-vous</span>
                     </button>
                 </div>
             </form>
@@ -858,15 +979,25 @@
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </div>
-                <h3>Demande de rendez-vous enregistrée</h3>
-                <p>Votre rendez-vous est enregistré dans ce récapitulatif. Conservez votre numéro de dossier.</p>
+                <h3>Demande enregistrée avec succès</h3>
+                <p>Votre rendez-vous a été consigné dans le registre de la Clinique Effort. Conservez précieusement votre code de dossier.</p>
                 
                 <div class="recap-card" id="recapCard">
                 </div>
 
+                <div class="consignes-visite-box">
+                    <h5>📋 Consignes pratiques pour votre consultation :</h5>
+                    <ul>
+                        <li><strong>Accueil :</strong> Présentez-vous à la réception 15 minutes avant l'heure fixée avec votre code de dossier.</li>
+                        <li><strong>Documents :</strong> Munissez-vous d'une pièce d'identité valide et de vos éventuels bilans antérieurs.</li>
+                        <li><strong>Bilans de santé :</strong> Si vous avez choisi un forfait bilan sanguin, présentez-vous à jeun le matin.</li>
+                        <li><strong>Assistance & Report :</strong> Contactez le secrétariat médical au <strong>+243 81 945 6654</strong> en cas de contretemps.</li>
+                    </ul>
+                </div>
+
                 <div class="recap-actions">
-                    <button class="btn btn-primary" onclick="closeAppointmentModal()">Fermer et retourner au site</button>
-                    <button class="btn btn-secondary" onclick="window.print()">Imprimer la convocation</button>
+                    <button class="btn btn-primary" onclick="closeAppointmentModal()">Retourner au site</button>
+                    <button class="btn btn-secondary" onclick="window.print()">Imprimer la fiche de convocation</button>
                 </div>
             </div>
         </div>
