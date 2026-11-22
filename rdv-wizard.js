@@ -131,7 +131,8 @@
         if (t && NEXT_LABELS[n]) t.textContent = NEXT_LABELS[n];
         if (n === 2) renderContext();
         if (n === 3) renderRecap();
-        body.scrollTop = 0;
+        if (body) body.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     window.rdvGoTo = go;
 

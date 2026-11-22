@@ -9,6 +9,10 @@
     initLanguageSwitcher();
     initAppointmentDoctors();
     initAppointmentSlotEvents();
+
+    if (window.location.hash === '#rendez-vous') {
+        openAppointmentModal();
+    }
 });
 
 const translations = {
@@ -274,12 +278,12 @@ function scrollToSection(sectionId) {
 }
 
 function openAppointmentModal(servicePreselect = '') {
-    const modal = document.getElementById('appointmentModal');
+    const bookingSection = document.getElementById('appointmentModal');
     const select = document.getElementById('rdvSpecialite');
     const form = document.getElementById('rdvForm');
     const successScreen = document.getElementById('rdvSuccessScreen');
 
-    if (!modal) return;
+    if (!bookingSection) return;
 
     if (form) form.style.display = 'block';
     if (successScreen) successScreen.style.display = 'none';
@@ -301,31 +305,58 @@ function openAppointmentModal(servicePreselect = '') {
         }
     }
 
-    modal.classList.add('active');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden'; // Bloquer le défilement arrière
+    // Basculer en Mode Focus (Masque les autres sections)
+    document.body.classList.add('booking-mode-active');
+    bookingSection.style.display = 'block';
+    bookingSection.classList.add('active');
+    bookingSection.setAttribute('aria-hidden', 'false');
+
+    // Mettre à jour l'historique d'URL
+    if (window.location.hash !== '#rendez-vous') {
+        history.pushState({ booking: true }, '', '#rendez-vous');
+    }
+
+    // Défilement fluide vers le haut de la section
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     loadAppointmentDoctors();
 }
 
 function closeAppointmentModal() {
-    const modal = document.getElementById('appointmentModal');
-    if (!modal) return;
+    const bookingSection = document.getElementById('appointmentModal');
+    if (!bookingSection) return;
 
-    modal.classList.remove('active');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    // Quitter le Mode Focus (Réaffiche les sections vitrines)
+    document.body.classList.remove('booking-mode-active');
+    bookingSection.style.display = 'none';
+    bookingSection.classList.remove('active');
+    bookingSection.setAttribute('aria-hidden', 'true');
+
+    // Nettoyer le hash si nécessaire
+    if (window.location.hash === '#rendez-vous') {
+        history.pushState(null, '', window.location.pathname + window.location.search);
+    }
+
+    // Retour doux en haut de la page
+    const hero = document.getElementById('accueil');
+    if (hero) {
+        hero.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 }
 
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('appointmentModal');
-    if (e.target === modal) {
+// Gestion des touches et de l'historique du navigateur
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('booking-mode-active')) {
         closeAppointmentModal();
     }
 });
 
-// Échappe pour fermer
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+window.addEventListener('popstate', () => {
+    if (window.location.hash === '#rendez-vous') {
+        openAppointmentModal();
+    } else if (document.body.classList.contains('booking-mode-active')) {
         closeAppointmentModal();
     }
 });
@@ -631,7 +662,7 @@ function handleContactSubmit(event) {
 
 function openEmergencyModal() {
     if (confirm("🚨 APPEL D'URGENCE MÉDICALE\n\nSouhaitez-vous composer directement le numéro des Urgences de la Clinique Effort (0819 456 654) ?\n\nEn cas d'urgence vitale immédiate, composez le 15 (SAMU).")) {
-        window.location.href = "tel:0819456654";
+        window.location.href = "tel:+243819456654";
     }
 }
 
